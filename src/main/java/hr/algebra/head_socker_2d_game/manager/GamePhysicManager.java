@@ -12,13 +12,32 @@ public class GamePhysicManager {
     }
 
     public void initPhysics(GameObjectManager gom) {
-        setPlayersPhysic(gom);
+        setFloorPhysic(gom);
+        setBoundaryWallsPhysics(gom);
+        setBoundaryCeilingPhysics(gom);
         setGoalsPhysic(gom);
+        setPlayersPhysic(gom);
         setBallPhysic(gom);
 
-        addPlayersToWorld(gom);
+        addFloorToWorld(gom);
+        addCeilingToWorld(gom);
+        addWallsToWorld(gom);
         addGoalsToWorld(gom);
+        addPlayersToWorld(gom);
         addBallToWorld(gom);
+    }
+
+    private void setBoundaryWallsPhysics(GameObjectManager gom) {
+        PhysicUtils.setupBoundaryWallPhysics(gom.getRightBoundaryWall());
+        PhysicUtils.setupBoundaryWallPhysics(gom.getLeftBoundaryWall());
+    }
+
+    private void setBoundaryCeilingPhysics(GameObjectManager gom) {
+        PhysicUtils.setupBoundaryCeilingPhysics(gom.getCeiling());
+    }
+
+    private void setFloorPhysic(GameObjectManager gom) {
+        PhysicUtils.setupFloorPhysics(gom.getFloor());
     }
 
     private static void setPlayersPhysic(GameObjectManager gom) {
@@ -35,6 +54,18 @@ public class GamePhysicManager {
         PhysicUtils.setupBallPhysics(gom.getBall());
     }
 
+    private void addFloorToWorld(GameObjectManager gom) {
+        world.addBody(gom.getFloor().getBody());
+    }
+
+    private void addCeilingToWorld(GameObjectManager gom) {
+        world.addBody(gom.getCeiling().getBody());
+    }
+
+    private void addWallsToWorld(GameObjectManager gom) {
+        world.addBody(gom.getRightBoundaryWall().getBody());
+        world.addBody(gom.getLeftBoundaryWall().getBody());
+    }
 
     private void addPlayersToWorld(GameObjectManager gom) {
         world.addBody(gom.getLeftPlayer().getBody());

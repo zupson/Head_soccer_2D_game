@@ -5,10 +5,7 @@ import hr.algebra.head_socker_2d_game.game.loop.GameLoop;
 import hr.algebra.head_socker_2d_game.manager.GameObjectManager;
 import hr.algebra.head_socker_2d_game.manager.GamePhysicManager;
 import hr.algebra.head_socker_2d_game.manager.GameStateManager;
-import hr.algebra.head_socker_2d_game.model.entities.Ball;
-import hr.algebra.head_socker_2d_game.model.entities.GameState;
-import hr.algebra.head_socker_2d_game.model.entities.Goal;
-import hr.algebra.head_socker_2d_game.model.entities.Player;
+import hr.algebra.head_socker_2d_game.model.entities.*;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
@@ -22,6 +19,10 @@ import org.dyn4j.geometry.Vector2;
 public class HeadSockerController {
     @FXML
     private Canvas gameCanvas;
+    double SCENE_WIDTH = 1000;
+    double SCENE_HEIGHT = 800;
+
+
     private GraphicsContext graphicContext;
     private GameObjectManager gameObjectManager;
     private GameStateManager gameStateManager;
@@ -39,6 +40,9 @@ public class HeadSockerController {
         graphicContext = gameCanvas.getGraphicsContext2D();
 
         // Čekaj da scena bude postavljena prije dodavanja KeyEvent listenera
+        gameCanvas.setWidth(SCENE_WIDTH);
+        gameCanvas.setHeight(SCENE_HEIGHT);
+
         gameCanvas.setFocusTraversable(true);
         gameCanvas.requestFocus();
         gameCanvas.sceneProperty().addListener((obs, oldScene, newScene) -> {
@@ -66,35 +70,44 @@ public class HeadSockerController {
     private void handleKeyPress(KeyEvent keyEvent) {
         KeyCode key = keyEvent.getCode();
 
-        // Kontrole za igrače
+        Body body = gameObjectManager.getLeftPlayer().getBody();
+        double moveSpeed = 3.0; // brzina po ticku
+
         if (key == KeyCode.RIGHT) {
-            gameObjectManager.getLeftPlayer().getBody()
-                    .applyForce(new Vector2(40, 0));
+            body.applyImpulse(new Vector2(moveSpeed, 0));
         } else if (key == KeyCode.LEFT) {
-            gameObjectManager.getLeftPlayer().getBody()
-                    .applyForce(new Vector2(-40, 0));
+            body.applyImpulse(new Vector2(-moveSpeed, 0));
         } else if (key == KeyCode.UP) {
-            gameObjectManager.getLeftPlayer().getBody().applyForce(new Vector2(0, -200));  // Skakanje za lijevog igrača
-        } else if (key == KeyCode.D) {
-            gameObjectManager.getRightPlayer().getBody().applyForce(new Vector2(10, 0));  // Pomak desno za desnog igrača
-        } else if (key == KeyCode.A) {
-            gameObjectManager.getRightPlayer().getBody().applyForce(new Vector2(-10, 0));  // Pomak lijevo za desnog igrača
-        } else if (key == KeyCode.W) {
-            gameObjectManager.getRightPlayer().getBody().applyForce(new Vector2(0, -200));  // Skakanje za desnog igrača
-        } else if (key == KeyCode.ESCAPE) {
-            if (gameStateManager.isRunning()) {
-                gameStateManager.setCurrentState(GameState.PAUSE);  // Pauza igre
-            } else {
-                gameStateManager.setCurrentState(GameState.RUNNING);
+            if (isPlayerOnFloor(gameObjectManager.getLeftPlayer())) {
+                Vector2 vel = body.getLinearVelocity();
+                vel.y = 8.0; // instant jump
+                body.setLinearVelocity(vel);
             }
         }
+
     }
+
+    private boolean isPlayerOnFloor(Player p) {
+        double playerY = p.getBody().getTransform().getTranslationY();
+        double floorY = gameObjectManager.getFloor().getBody().getTransform().getTranslationY() + GameObjectManager.FLOOR_HEIGHT / 2;
+
+        // Malo tolerance da ne treba biti precizno
+        return Math.abs(playerY - (floorY + GameObjectManager.PLAYER_HEIGHT / 2)) <= 0.05;
+    }
+
 
     public void render() {
         if (graphicContext == null || gameObjectManager == null) return;
 
         final double SCALE = 100.0; // prilagodi po potrebi
         graphicContext.clearRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
+
+
+        drawBoundary(gameObjectManager.getCeiling(), Color.SKYBLUE, SCALE);
+        drawBoundary(gameObjectManager.getLeftBoundaryWall(), Color.SKYBLUE, SCALE);
+        drawBoundary(gameObjectManager.getRightBoundaryWall(), Color.SKYBLUE, SCALE);
+
+        drawFloor(gameObjectManager.getFloor(), Color.GREEN, SCALE);
 
         drawLeftGoal(gameObjectManager.getLeftGoal(), Color.BLACK, SCALE);
         drawRightGoal(gameObjectManager.getRightGoal(), Color.BLACK, SCALE);
@@ -105,9 +118,44 @@ public class HeadSockerController {
         drawPlayer(gameObjectManager.getRightPlayer(), Color.RED, SCALE);
     }
 
+
     private double clamp(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
     }
+
+    private void drawFloor(Floor floor, Color color, double scale) {
+        double width = floor.getWidth() * scale;
+        double height = floor.getHeight() * scale;
+
+        // Dyn4j centar floor-a
+        double centerX = floor.getBody().getTransform().getTranslationX() * scale;
+        double centerY = floor.getBody().getTransform().getTranslationY() * scale;
+
+        // Flip Y: canvasHeight - centarY → donja strana
+        double canvasY = gameCanvas.getHeight() - (centerY + height / 2);
+
+        double canvasX = centerX - width / 2;
+
+        graphicContext.setFill(color);
+        graphicContext.fillRect(canvasX, canvasY, width, height);
+    }
+
+    private void drawBoundary(GameObject boundary, Color color, double scale) {
+        double width = boundary.getWidth() * scale;
+        double height = boundary.getHeight() * scale;
+
+        // Dyn4j centar objekta
+        double centerX = boundary.getBody().getTransform().getTranslationX() * scale;
+        double centerY = boundary.getBody().getTransform().getTranslationY() * scale;
+
+        // Flip Y: canvasHeight - centarY → donja strana
+        double canvasY = gameCanvas.getHeight() - (centerY + height / 2);
+        double canvasX = centerX - width / 2;
+
+        graphicContext.setFill(color);
+        graphicContext.fillRect(canvasX, canvasY, width, height);
+    }
+
 
     private void drawLeftGoal(Goal g, Color color, double scale) {
         double baseX = GameObjectManager.GOAL_WIDTH * scale / 2;  // Postavi lijevi gol uz lijevi rub canvasa
@@ -169,22 +217,20 @@ public class HeadSockerController {
         // Izračunamo X i Y koordinatu igrača
         double x = p.getBody().getTransform().getTranslationX() * scale;
         double y = gameCanvas.getHeight() - (p.getBody().getTransform().getTranslationY() * scale);
+        double headRadius = GameObjectManager.PLAYER_HEIGHT / 2.0 * scale;
 
-        // Dodajemo marginu za precizno pozicioniranje na tlo
-        y = y - GameObjectManager.PLAYER_HEIGHT * scale / 2;  // Smanjujemo y da igrač bude na tlu
+        double footWidth = GameObjectManager.PLAYER_WIDTH * scale;
+        double footHeight = GameObjectManager.PLAYER_HEIGHT / 4.0 * scale;
 
         // Ovdje klampamo y tako da igrač ostane na tlu
-        y = clamp(y, 0, gameCanvas.getHeight() - GameObjectManager.PLAYER_HEIGHT * scale);
+        y = clamp(y, 0, gameCanvas.getHeight() - footHeight);
         x = clamp(x, 0, gameCanvas.getWidth() - GameObjectManager.PLAYER_WIDTH * scale);
 
         // Crtanje glave (krug)
-        double headRadius = GameObjectManager.PLAYER_HEIGHT / 2.0 * scale;
         graphicContext.setFill(color);
         graphicContext.fillOval(x - headRadius, y - headRadius * 2, headRadius * 2, headRadius * 2);  // Glava
 
         // Crtanje kopačke (pravokutnik)
-        double footWidth = GameObjectManager.PLAYER_WIDTH * scale;
-        double footHeight = GameObjectManager.PLAYER_HEIGHT / 4.0 * scale;
         graphicContext.fillRect(x - footWidth / 2, y, footWidth, footHeight);  // Kopačka
     }
 
