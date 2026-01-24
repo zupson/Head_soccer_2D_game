@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>hr.algebra</groupId>
-    <artifactId>Head_socker_2D_game</artifactId>
+    <artifactId>Head_soccer_2D_game</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>Head_socker_2D_game</name>
+    <name>Head_soccer_2D_game</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -67,7 +67,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>hr.algebra.head_socker_2d_game.view.HeadSockerApplication</mainClass>
+                            <mainClass>hr.algebra.head_soccer_2d_game.main.HeadSoccerApplication</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
