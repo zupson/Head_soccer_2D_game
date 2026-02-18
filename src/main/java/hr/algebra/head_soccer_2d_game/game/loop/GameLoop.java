@@ -3,9 +3,7 @@ package hr.algebra.head_soccer_2d_game.game.loop;
 import hr.algebra.head_soccer_2d_game.manager.GameObjectManager;
 import hr.algebra.head_soccer_2d_game.manager.GamePhysicManager;
 import hr.algebra.head_soccer_2d_game.manager.GameStateManager;
-import hr.algebra.head_soccer_2d_game.controller.GameController;
-import hr.algebra.head_soccer_2d_game.model.entities.enums.GameState;
-import hr.algebra.head_soccer_2d_game.utilities.PhysicUtils;
+import hr.algebra.head_soccer_2d_game.controller.PlaygroundController;
 import javafx.animation.AnimationTimer;
 
 public class GameLoop extends AnimationTimer {
@@ -14,13 +12,13 @@ public class GameLoop extends AnimationTimer {
     private final GameObjectManager gameObjectManager;
     private final GamePhysicManager gamePhysicManager;
     private final GameStateManager gameStateManager;
-    private final GameController gameController;
+    private final PlaygroundController playgroundController;
 
-    public GameLoop(GameObjectManager gameObjectManager, GamePhysicManager gamePhysicManager, GameStateManager gameStateManager, GameController gameController) {
+    public GameLoop(GameObjectManager gameObjectManager, GamePhysicManager gamePhysicManager, GameStateManager gameStateManager, PlaygroundController playgroundController) {
         this.gameObjectManager = gameObjectManager;
         this.gamePhysicManager = gamePhysicManager;
         this.gameStateManager = gameStateManager;
-        this.gameController = gameController;
+        this.playgroundController = playgroundController;
     }
 
     @Override
@@ -42,8 +40,7 @@ public class GameLoop extends AnimationTimer {
             resetAfterGoal();
             gameStateManager.setScoredGoalFlag(false);
         }
-
-        gameController.render();
+        playgroundController.render();
     }
 
     public void resetAfterGoal() {

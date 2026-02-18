@@ -1,9 +1,7 @@
 package hr.algebra.head_soccer_2d_game.utilities;
 
-import hr.algebra.head_soccer_2d_game.manager.GameStateManager;
 import hr.algebra.head_soccer_2d_game.model.entities.*;
 import hr.algebra.head_soccer_2d_game.model.entities.enums.Side;
-import hr.algebra.head_soccer_2d_game.model.entities.Simulable;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
@@ -109,6 +107,4 @@ public class PhysicUtils {
         body.setMass(MassType.INFINITE);
         body.setUserData(b);
     }
-
-
 }

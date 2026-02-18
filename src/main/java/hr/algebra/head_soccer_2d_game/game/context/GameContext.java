@@ -1,6 +1,6 @@
 package hr.algebra.head_soccer_2d_game.game.context;
 
-import hr.algebra.head_soccer_2d_game.controller.GameFieldController;
+import hr.algebra.head_soccer_2d_game.controller.PlaygroundController;
 import hr.algebra.head_soccer_2d_game.game.factory.GameFactory;
 import hr.algebra.head_soccer_2d_game.manager.GameObjectManager;
 import hr.algebra.head_soccer_2d_game.manager.GamePhysicManager;
@@ -12,13 +12,13 @@ public class GameContext {
     private final GameObjectManager gameObjectManager;
     private final GamePhysicManager gamePhysicManager;
     private final GameStateManager gameStateManager;
-    private final GameFieldController gameFieldController;
+    private final PlaygroundController playgroundController;
     public GameContext() {
         var gameFactory = new GameFactory();
         gameObjectManager = gameFactory.createGameObjectManager();
         gameStateManager = gameFactory.createStateManager();
-        gameFieldController = new GameFieldController(gameStateManager, gameObjectManager);
-        gamePhysicManager = gameFactory.cretePhysicsManager(gameObjectManager, gameFieldController);
+        playgroundController = new PlaygroundController();
+        gamePhysicManager = gameFactory.cretePhysicsManager(gameObjectManager, playgroundController);
 
     }
 

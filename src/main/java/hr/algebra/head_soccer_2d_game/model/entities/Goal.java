@@ -14,7 +14,7 @@ public class Goal extends GameObject {
     }
 
     public int getScore() {
-        return score;
+        return this.score;
     }
 
     public void addScore() {
@@ -22,6 +22,6 @@ public class Goal extends GameObject {
     }
 
     public Side getSide() {
-        return side;
+        return this.side;
     }
 }

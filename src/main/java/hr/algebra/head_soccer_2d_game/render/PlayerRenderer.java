@@ -1,16 +1,15 @@
-package hr.algebra.head_soccer_2d_game.view;
+package hr.algebra.head_soccer_2d_game.render;
 
 import hr.algebra.head_soccer_2d_game.manager.GameObjectManager;
-import hr.algebra.head_soccer_2d_game.model.entities.GameObject;
 import hr.algebra.head_soccer_2d_game.model.entities.Player;
 import hr.algebra.head_soccer_2d_game.utilities.DrawUtils;
 import javafx.scene.canvas.GraphicsContext;
 
-public class PlayerView implements Drawable {
+public class PlayerRenderer implements Drawable {
     private final GraphicsContext graphicsContext;
     private final GameObjectManager gameObjectManager;
 
-    public PlayerView(GraphicsContext graphicsContext, GameObjectManager gameObjectManager) {
+    public PlayerRenderer(GraphicsContext graphicsContext, GameObjectManager gameObjectManager) {
         this.graphicsContext = graphicsContext;
         this.gameObjectManager = gameObjectManager;
     }

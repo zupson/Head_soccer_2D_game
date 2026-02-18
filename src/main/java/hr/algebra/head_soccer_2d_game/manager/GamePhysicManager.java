@@ -15,9 +15,9 @@ import org.dyn4j.world.listener.ContactListener;
 
 public class GamePhysicManager implements ContactListener<Body> {
     private final World<Body> world;
-    private final GoalListener goalListener;
+    private GoalListener goalListener;
+
     public GamePhysicManager(GoalListener goalListener) {
-        this.goalListener = goalListener;
         world = new World<>();
         world.setGravity(0, -9.81);
         world.addContactListener(this);
@@ -66,6 +66,10 @@ public class GamePhysicManager implements ContactListener<Body> {
         PhysicUtils.setupBallPhysics(gom.getBall());
     }
 
+    public void setGoalListener(GoalListener goalListener) {
+        this.goalListener = goalListener;
+    }
+
     private void addFloorToWorld(GameObjectManager gom) {
         world.addBody(gom.getFloor().getBody());
     }
@@ -109,18 +113,15 @@ public class GamePhysicManager implements ContactListener<Body> {
         if (!sensor.isSensor()) return;
         var sensorBody = sensor.getUserData();
         var otherBody = other.getUserData();
-
-        System.out.println("SENSOR BODY: " + sensorBody );
-        System.out.println("OTHER BODY: " + otherBody);
-
-        if (sensorBody instanceof Goal && otherBody instanceof Ball) {
-            var goal = (Goal) sensorBody;
-            goalListener.onGoalScored(goal.getSide());
-            System.out.println("GOAL SCORE: " + goal.getScore() +" "+ goal.getSide());
+        if (sensorBody instanceof Goal goal && otherBody instanceof Ball ball) {
+            if(goalListener != null){
+                goalListener.onGoalScored(goal.getSide(), goal.getScore());
+            }
+            System.out.println("GOAL SCORE: " + goal.getScore() + " " + goal.getSide());
         }
     }
 
-       @Override
+    @Override
     public void persist(ContactCollisionData<Body> contactCollisionData, Contact contact, Contact contact1) {
 
     }

@@ -6,24 +6,39 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-
-<BorderPane fx:controller="hr.algebra.head_soccer_2d_game.controller.GameController"
-            maxHeight="-Infinity" maxWidth="-Infinity"
-            minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="800.0" prefWidth="1000.0"
-            xmlns="http://javafx.com/javafx/21"
-            xmlns:fx="http://javafx.com/fxml/1">
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.text.Font?>
+<BorderPane maxHeight="800.0" maxWidth="1000.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.head_soccer_2d_game.controller.PlaygroundController">
    <top>
        <MenuBar BorderPane.alignment="CENTER">
            <Menu mnemonicParsing="false" text="File">
-               <MenuItem mnemonicParsing="false" text="Close"/>
+               <MenuItem mnemonicParsing="false" text="Close" />
            </Menu>
        </MenuBar>
    </top>
    <center>
        <AnchorPane prefHeight="770.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
-           <Canvas fx:id="gameCanvas" height="774.0" width="1000.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                   AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+           <Canvas fx:id="gameCanvas" height="670.0" width="1000" />
+           <Label fx:id="lbRightPlayerScore" alignment="CENTER" layoutX="414.0" layoutY="36.0" prefHeight="53.0" prefWidth="32.0" text="0" textAlignment="CENTER" textFill="#141414">
+               <font>
+                   <Font name="System Bold" size="36.0" />
+               </font>
+           </Label>
+           <Label fx:id="lbLeftPlayerScore" alignment="CENTER" layoutX="557.0" layoutY="36.0" prefHeight="53.0" prefWidth="29.0" text="0" textFill="#141414">
+               <font>
+                   <Font name="System Bold" size="36.0" />
+               </font>
+           </Label>
+           <Label layoutX="484.0" layoutY="45.0" text="VS">
+               <font>
+                   <Font size="24.0" />
+               </font>
+           </Label>
+           <Label fx:id="lbTimer" contentDisplay="CENTER" layoutX="487.0" layoutY="14.0" text="60">
+               <font>
+                   <Font name="System Bold" size="18.0" />
+               </font>
+           </Label>
        </AnchorPane>
    </center>
 </BorderPane>

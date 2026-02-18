@@ -42,7 +42,7 @@ public class PlayerController {
             case UP -> {
                 if (isPlayerOnFloor(gameObjectManager.getLeftPlayer())) {
                     Vector2 vel = playerL_body.getLinearVelocity();
-                    vel.y = JUMP_VELOCITY; // instant jump
+                    vel.y = JUMP_VELOCITY;
                     playerL_body.setLinearVelocity(vel);
                 }
             }
@@ -51,7 +51,7 @@ public class PlayerController {
             case W -> {
                 if (isPlayerOnFloor(gameObjectManager.getRightPlayer())) {
                     Vector2 vel = playerR_body.getLinearVelocity();
-                    vel.y = JUMP_VELOCITY; // instant jump
+                    vel.y = JUMP_VELOCITY;
                     playerR_body.setLinearVelocity(vel);
                 }
             }
@@ -60,7 +60,8 @@ public class PlayerController {
 
     private boolean isPlayerOnFloor(GameObject gObject) {
         double playerY = gObject.getBody().getTransform().getTranslationY();
-        double floorY = gameObjectManager.getFloor().getBody().getTransform().getTranslationY() + DimenConstants.HORIZONTAL_BOUNDARY_HEIGHT / 2;
+        double floorY = gameObjectManager.getFloor().getBody().getTransform()
+                .getTranslationY() + DimenConstants.HORIZONTAL_BOUNDARY_HEIGHT / 2;
         return Math.abs(playerY - (floorY + DimenConstants.PLAYER_HEIGHT / 2)) <= FLOOR_TOLERANCE;
     }
 }
