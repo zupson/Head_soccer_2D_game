@@ -1,7 +1,7 @@
-package hr.algebra.head_soccer_2d_game.game.context;
+package hr.algebra.head_soccer_2d_game.game;
 
-import hr.algebra.head_soccer_2d_game.controller.GoalListener;
-import hr.algebra.head_soccer_2d_game.game.factory.GameFactory;
+import hr.algebra.head_soccer_2d_game.controller.event.GoalListener;
+import hr.algebra.head_soccer_2d_game.game.factory.GameManagersFactory;
 import hr.algebra.head_soccer_2d_game.manager.GameObjectManager;
 import hr.algebra.head_soccer_2d_game.manager.GamePhysicManager;
 import hr.algebra.head_soccer_2d_game.manager.GameStateManager;
@@ -14,7 +14,7 @@ public class GameContext {
     private final GameStateManager gameStateManager;
 
     public GameContext(GoalListener goalListener) {
-        var gameFactory = new GameFactory();
+        var gameFactory = new GameManagersFactory();
         gameObjectManager = gameFactory.createGameObjectManager();
         gameStateManager = gameFactory.createStateManager();
         gamePhysicManager = gameFactory.cretePhysicsManager(gameObjectManager, goalListener);

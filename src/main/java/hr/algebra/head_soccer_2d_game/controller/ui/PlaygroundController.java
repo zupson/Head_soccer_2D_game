@@ -1,9 +1,11 @@
-package hr.algebra.head_soccer_2d_game.controller;
+package hr.algebra.head_soccer_2d_game.controller.ui;
 
-import hr.algebra.head_soccer_2d_game.game.context.GameContext;
-import hr.algebra.head_soccer_2d_game.game.loop.GameLoop;
+import hr.algebra.head_soccer_2d_game.constant.WindowSizeConstants;
+import hr.algebra.head_soccer_2d_game.controller.event.GoalListener;
+import hr.algebra.head_soccer_2d_game.controller.input.PlayerInputHandler;
+import hr.algebra.head_soccer_2d_game.game.GameContext;
+import hr.algebra.head_soccer_2d_game.game.GameLoop;
 import hr.algebra.head_soccer_2d_game.manager.GameObjectManager;
-import hr.algebra.head_soccer_2d_game.manager.GamePhysicManager;
 import hr.algebra.head_soccer_2d_game.manager.GameStateManager;
 import hr.algebra.head_soccer_2d_game.model.entities.GameDataSnapshot;
 import hr.algebra.head_soccer_2d_game.model.entities.enums.GameState;
@@ -17,17 +19,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 
 import java.io.IOException;
 
 public class PlaygroundController implements GoalListener {
-    private static final int SCENE_WIDTH = 1000;
-    private static final int SCENE_HEIGHT = 800;
-
     private GraphicsContext graphicContext;
 
     private GameObjectManager gameObjectManager;
@@ -55,33 +51,81 @@ public class PlaygroundController implements GoalListener {
     @FXML
     public Button btnResume;
 
-    @FXML
-    private void initialize() {
-        graphicContext = gameCanvas.getGraphicsContext2D();
-        gameCanvas.setWidth(SCENE_WIDTH);
-        gameCanvas.setHeight(SCENE_HEIGHT);
-        gameCanvas.setFocusTraversable(true);
-        gameCanvas.requestFocus();
-    }
-
     public void setGameContext(GameContext context) {
         gameObjectManager = context.getGameObjectManager();
-        GamePhysicManager gamePhysicManager = context.getGamePhysicManager();
+        var gamePhysicManager = context.getGamePhysicManager();
         gameStateManager = context.getGameStateManager();
 
-        playerInputHandler = new PlayerInputHandler(gameObjectManager);
         gameLoop = new GameLoop(gameObjectManager, gamePhysicManager, gameStateManager, this);
         gamePhysicManager.setGoalListener(this);
-        gameStateManager.setCurrentState(GameState.RUNNING);
 
+        playerInputHandler = new PlayerInputHandler(gameObjectManager);
+
+        initCanvas();
+        setupInputHandlers();
+        initRenderers();
+
+        loadSavedOrStartNewGame();
+    }
+
+    private void initCanvas() {
+        graphicContext = gameCanvas.getGraphicsContext2D();
+        gameCanvas.setWidth(WindowSizeConstants.SCENE_WIDTH);
+        gameCanvas.setHeight(WindowSizeConstants.SCENE_HEIGHT);
         gameCanvas.setFocusTraversable(true);
-        gameCanvas.setOnKeyPressed(playerInputHandler::handleKeyPress);
-        gameCanvas.setOnKeyReleased(playerInputHandler::handleKeyRelease);
         Platform.runLater(() -> gameCanvas.requestFocus());
+    }
 
+    private void initRenderers() {
         playerRenderer = new PlayerRenderer(graphicContext, gameObjectManager);
         gameFieldRenderer = new GameFieldRenderer(graphicContext, gameObjectManager);
-        gameLoop.start();
+    }
+
+    private void loadSavedOrStartNewGame() {
+        GameDataSnapshot snapshot = null;
+        try {
+            snapshot = FileUtils.loadGame();
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("No valid save found. Starting new game.");
+            FileUtils.deleteSave();
+        }
+        if (snapshot != null) {
+            GameDataUtils.loadCurrentGameData(snapshot, gameLoop);
+            updateScoreLabels(snapshot);
+        } else {
+            showStartNewGameAlert();
+        }
+    }
+
+    private void showStartNewGameAlert() {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("No Saved Game");
+            alert.setHeaderText("No previous game found!");
+            alert.setContentText("Do you want to start a new game or close the application?");
+
+            var btnStart = new ButtonType("Start New Game");
+            var btnClose = new ButtonType("Close");
+            alert.getButtonTypes().setAll(btnStart, btnClose);
+
+            var result = alert.showAndWait().orElse(btnClose);
+
+            if (result == btnStart) {
+                startNewGame();
+            } else {
+                Platform.exit();
+            }
+        });
+    }
+
+    private void updateScoreLabels(GameDataSnapshot snapshot) {
+        lbLeftPlayerScore.setText(String.valueOf(snapshot.player1Score));
+        lbRightPlayerScore.setText(String.valueOf(snapshot.player2Score));
+    }
+
+    private void setupInputHandlers() {
+        gameCanvas.setOnKeyPressed(playerInputHandler::handleKeyPress);
+        gameCanvas.setOnKeyReleased(playerInputHandler::handleKeyRelease);
     }
 
     public void render() {
@@ -114,14 +158,39 @@ public class PlaygroundController implements GoalListener {
         });
     }
 
-    public void showGameOverMessage() {
+    @FXML
+    public void onGameOver() {
+        gameLoop.stop();
+        gameStateManager.setCurrentState(GameState.GAME_OVER);
+        FileUtils.deleteSave();
         Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
             alert.setTitle("Game Over");
-            alert.setHeaderText(null);
-            alert.setContentText("Time is up!!!");
-            alert.showAndWait();
+            alert.setHeaderText("Time is up!");
+            alert.setContentText("Do you want to start a new game or close the application?");
+
+            var btnNewGame = new javafx.scene.control.ButtonType("New Game");
+            var btnClose = new javafx.scene.control.ButtonType("Close");
+            alert.getButtonTypes().setAll(btnNewGame, btnClose);
+
+            var result = alert.showAndWait().orElse(btnClose);
+
+            if (result == btnNewGame) {
+                startNewGame();
+            } else {
+                Platform.exit();
+            }
         });
+    }
+
+    private void startNewGame() {
+        gameObjectManager.setPlayersStartPositions();
+        gameObjectManager.setBallStartPosition();
+        gameObjectManager.getLeftGoal().setScore(0);
+        gameObjectManager.getRightGoal().setScore(0);
+        gameLoop.setRemainingTime(60);
+        gameStateManager.setCurrentState(GameState.RUNNING);
+        gameLoop.start();
     }
 
     public void updateTimerLabel(double time) {
@@ -156,6 +225,7 @@ public class PlaygroundController implements GoalListener {
             alert.setContentText("Could not load game: " + e.getMessage());
             alert.showAndWait();
         }
+        gameLoop.start();
         gameCanvas.requestFocus();
     }
 }

@@ -1,6 +1,6 @@
 package hr.algebra.head_soccer_2d_game.manager;
 
-import hr.algebra.head_soccer_2d_game.controller.GoalListener;
+import hr.algebra.head_soccer_2d_game.controller.event.GoalListener;
 import hr.algebra.head_soccer_2d_game.model.entities.Ball;
 import hr.algebra.head_soccer_2d_game.model.entities.Goal;
 import hr.algebra.head_soccer_2d_game.utilities.PhysicUtils;

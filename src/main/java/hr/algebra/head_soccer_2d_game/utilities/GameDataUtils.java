@@ -1,7 +1,7 @@
 package hr.algebra.head_soccer_2d_game.utilities;
 
-import hr.algebra.head_soccer_2d_game.game.context.GameContext;
-import hr.algebra.head_soccer_2d_game.game.loop.GameLoop;
+import hr.algebra.head_soccer_2d_game.game.GameContext;
+import hr.algebra.head_soccer_2d_game.game.GameLoop;
 import hr.algebra.head_soccer_2d_game.model.entities.GameDataSnapshot;
 import hr.algebra.head_soccer_2d_game.model.entities.enums.GameState;
 
@@ -13,7 +13,7 @@ public class GameDataUtils {
         var gameObjectManager = GameContext.getCurrentInstance().getGameObjectManager();
         var gameStateManager = GameContext.getCurrentInstance().getGameStateManager();
 
-        if (snapshot == null) {
+        if (snapshot == null || snapshot.gameState == GameState.GAME_OVER) {
             FileUtils.deleteSave();
             gameStateManager.setCurrentState(GameState.RUNNING);
             return;

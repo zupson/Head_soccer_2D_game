@@ -1,4 +1,4 @@
-package hr.algebra.head_soccer_2d_game.controller;
+package hr.algebra.head_soccer_2d_game.controller.event;
 
 import hr.algebra.head_soccer_2d_game.model.entities.enums.Side;
 

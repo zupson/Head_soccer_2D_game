@@ -1,6 +1,6 @@
-package hr.algebra.head_soccer_2d_game.game.loop;
+package hr.algebra.head_soccer_2d_game.game;
 
-import hr.algebra.head_soccer_2d_game.controller.PlaygroundController;
+import hr.algebra.head_soccer_2d_game.controller.ui.PlaygroundController;
 import hr.algebra.head_soccer_2d_game.manager.GameObjectManager;
 import hr.algebra.head_soccer_2d_game.manager.GamePhysicManager;
 import hr.algebra.head_soccer_2d_game.manager.GameStateManager;
@@ -41,8 +41,11 @@ public class GameLoop extends AnimationTimer {
 
         if (remainingTime <= 0) {
             remainingTime = 0;
-            gameStateManager.setCurrentState(GameState.PAUSE);
-            return;
+            stop();
+
+            gameStateManager.setCurrentState(GameState.GAME_OVER);
+
+            javafx.application.Platform.runLater(playgroundController::onGameOver);
         }
 
         gamePhysicManager.update(deltaTime);

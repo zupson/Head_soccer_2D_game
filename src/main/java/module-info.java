@@ -11,4 +11,10 @@ module hr.algebra.head_soccer_2d_game {
     opens hr.algebra.head_soccer_2d_game.controller to javafx.fxml;
     exports hr.algebra.head_soccer_2d_game.main;
     opens hr.algebra.head_soccer_2d_game.main to javafx.fxml;
+    exports hr.algebra.head_soccer_2d_game.controller.ui;
+    opens hr.algebra.head_soccer_2d_game.controller.ui to javafx.fxml;
+    exports hr.algebra.head_soccer_2d_game.controller.input;
+    opens hr.algebra.head_soccer_2d_game.controller.input to javafx.fxml;
+    exports hr.algebra.head_soccer_2d_game.controller.event;
+    opens hr.algebra.head_soccer_2d_game.controller.event to javafx.fxml;
 }

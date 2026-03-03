@@ -1,4 +1,4 @@
-package hr.algebra.head_soccer_2d_game.controller;
+package hr.algebra.head_soccer_2d_game.controller.input;
 
 import hr.algebra.head_soccer_2d_game.constant.DimenConstants;
 import hr.algebra.head_soccer_2d_game.constant.PlayerConstants;

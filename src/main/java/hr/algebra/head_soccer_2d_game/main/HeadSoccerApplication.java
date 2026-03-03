@@ -1,7 +1,7 @@
 package hr.algebra.head_soccer_2d_game.main;
 
-import hr.algebra.head_soccer_2d_game.controller.PlaygroundController;
-import hr.algebra.head_soccer_2d_game.game.context.GameContext;
+import hr.algebra.head_soccer_2d_game.controller.ui.PlaygroundController;
+import hr.algebra.head_soccer_2d_game.game.GameContext;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
