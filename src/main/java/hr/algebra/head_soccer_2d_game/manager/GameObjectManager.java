@@ -174,4 +174,6 @@ public class GameObjectManager {
     public List<GameObject> getGameFiledObjects() {
         return gameFiledObjects;
     }
+
+
 }

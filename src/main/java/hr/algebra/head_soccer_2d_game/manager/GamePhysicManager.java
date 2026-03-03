@@ -12,7 +12,6 @@ import org.dyn4j.world.ContactCollisionData;
 import org.dyn4j.world.World;
 import org.dyn4j.world.listener.ContactListener;
 
-
 public class GamePhysicManager implements ContactListener<Body> {
     private final World<Body> world;
     private GoalListener goalListener;
@@ -112,12 +111,12 @@ public class GamePhysicManager implements ContactListener<Body> {
     private void checkGoal(BodyFixture sensor, BodyFixture other) {
         if (!sensor.isSensor()) return;
         var sensorBody = sensor.getUserData();
+        System.out.println("G P M: sensorBody = " + sensorBody);
         var otherBody = other.getUserData();
+        System.out.println("G P M: otherBody = " + otherBody); // je null
         if (sensorBody instanceof Goal goal && otherBody instanceof Ball ball) {
-            if(goalListener != null){
-                goalListener.onGoalScored(goal.getSide(), goal.getScore());
-            }
-            System.out.println("GOAL SCORE: " + goal.getScore() + " " + goal.getSide());
+            if(goalListener != null)
+                goalListener.onGoalScored(goal.getSide());
         }
     }
 

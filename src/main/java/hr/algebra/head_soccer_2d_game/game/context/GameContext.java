@@ -1,6 +1,6 @@
 package hr.algebra.head_soccer_2d_game.game.context;
 
-import hr.algebra.head_soccer_2d_game.controller.PlaygroundController;
+import hr.algebra.head_soccer_2d_game.controller.GoalListener;
 import hr.algebra.head_soccer_2d_game.game.factory.GameFactory;
 import hr.algebra.head_soccer_2d_game.manager.GameObjectManager;
 import hr.algebra.head_soccer_2d_game.manager.GamePhysicManager;
@@ -12,20 +12,21 @@ public class GameContext {
     private final GameObjectManager gameObjectManager;
     private final GamePhysicManager gamePhysicManager;
     private final GameStateManager gameStateManager;
-    private final PlaygroundController playgroundController;
-    public GameContext() {
+
+    public GameContext(GoalListener goalListener) {
         var gameFactory = new GameFactory();
         gameObjectManager = gameFactory.createGameObjectManager();
         gameStateManager = gameFactory.createStateManager();
-        playgroundController = new PlaygroundController();
-        gamePhysicManager = gameFactory.cretePhysicsManager(gameObjectManager, playgroundController);
+        gamePhysicManager = gameFactory.cretePhysicsManager(gameObjectManager, goalListener);
+    }
 
+    public static void init(GoalListener goalListener) {
+        if (currentInstance == null) {
+            currentInstance = new GameContext(goalListener);
+        }
     }
 
     public static GameContext getCurrentInstance() {
-        if (currentInstance == null) {
-            currentInstance = new GameContext();
-        }
         return currentInstance;
     }
 
