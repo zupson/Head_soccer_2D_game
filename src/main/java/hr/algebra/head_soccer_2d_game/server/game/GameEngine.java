@@ -1,5 +1,7 @@
 package hr.algebra.head_soccer_2d_game.server.game;
 
+import hr.algebra.head_soccer_2d_game.client.jndi.ConfigKey;
+import hr.algebra.head_soccer_2d_game.client.jndi.ConfigReader;
 import hr.algebra.head_soccer_2d_game.server.input.PlayerInputHandler;
 import hr.algebra.head_soccer_2d_game.server.manager.GameObjectManager;
 import hr.algebra.head_soccer_2d_game.server.manager.GamePhysicManager;
@@ -8,7 +10,6 @@ import hr.algebra.head_soccer_2d_game.server.model.entities.GameCommand;
 import hr.algebra.head_soccer_2d_game.server.model.entities.GameDataSnapshot;
 import hr.algebra.head_soccer_2d_game.server.model.entities.Player;
 import hr.algebra.head_soccer_2d_game.server.model.entities.PlayerInput;
-import hr.algebra.head_soccer_2d_game.shared.constant.NetworkConstants;
 import hr.algebra.head_soccer_2d_game.shared.enums.GameState;
 import hr.algebra.head_soccer_2d_game.shared.enums.PlayerType;
 import hr.algebra.head_soccer_2d_game.shared.enums.Side;
@@ -31,9 +32,9 @@ public class GameEngine implements GoalListener, GameDataListener, GameOverListe
         getCurrentInstanceForManagers(GameSingleton.getCurrentInstance());
         gamePhysicManager.setGoalListener(this);
 
-        NetworkUtils.receivePlayerInput((int) NetworkConstants.PORT_SERVER_FROM_PLAYER_1.getValue(), this);
-        NetworkUtils.receivePlayerInput((int) NetworkConstants.PORT_SERVER_FROM_PLAYER_2.getValue(), this);
-        NetworkUtils.receiveGameCommand((int) NetworkConstants.PORT_SERVER_CONTROL.getValue(), this);
+        NetworkUtils.receivePlayerInput(ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_PLAYER_ONE_PORT), this);
+        NetworkUtils.receivePlayerInput(ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_PLAYER_TWO_PORT), this);
+        NetworkUtils.receiveGameCommand(ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_CONTROL_PORT), this);
 
         gameLoop = new GameLoop(this, this, gameObjectManager, gamePhysicManager, gameStateManager, this);
         gameLoop.startGameLoop();
@@ -53,14 +54,15 @@ public class GameEngine implements GoalListener, GameDataListener, GameOverListe
             case Side.LEFT -> gameObjectManager.getLeftGoal().addScore();
             case Side.RIGHT -> gameObjectManager.getRightGoal().addScore();
         }
+        gameStateManager.setScoredGoalFlag(true);
     }
 
     //Starting TRAM station = Crnomerec
     @Override
     public void onGameDataChanged(GameDataSnapshot gameDataSnapshot) {
         threadPool.submit(() -> {
-            NetworkUtils.sendSnapshot(gameDataSnapshot, (int) NetworkConstants.PORT_PLAYER_1.getValue());
-            NetworkUtils.sendSnapshot(gameDataSnapshot, (int) NetworkConstants.PORT_PLAYER_2.getValue());
+            NetworkUtils.sendSnapshot(gameDataSnapshot, ConfigReader.getIntegerValueForKey(ConfigKey.PLAYER_ONE_SERVER_PORT));
+            NetworkUtils.sendSnapshot(gameDataSnapshot, ConfigReader.getIntegerValueForKey(ConfigKey.PLAYER_TWO_SERVER_PORT));
         });
     }
 
@@ -76,7 +78,6 @@ public class GameEngine implements GoalListener, GameDataListener, GameOverListe
         Player player = input.getPlayerType() == PlayerType.PLAYER_1
                 ? gameObjectManager.getLeftPlayer()
                 : gameObjectManager.getRightPlayer();
-
 
         if (input.getPlayerType() == PlayerType.PLAYER_1) {
             playerOneInputHandler.handleInput(input, player);

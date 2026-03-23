@@ -1,18 +1,20 @@
 package hr.algebra.head_soccer_2d_game.client.controller.ui;
 
 import hr.algebra.head_soccer_2d_game.client.controller.input.PlayerInputHandler;
+import hr.algebra.head_soccer_2d_game.client.jndi.ConfigKey;
+import hr.algebra.head_soccer_2d_game.client.jndi.ConfigReader;
 import hr.algebra.head_soccer_2d_game.client.main.HeadSoccerApplication;
 import hr.algebra.head_soccer_2d_game.client.render.GameFieldRenderer;
 import hr.algebra.head_soccer_2d_game.client.render.PlayerRenderer;
 import hr.algebra.head_soccer_2d_game.server.model.entities.GameCommand;
 import hr.algebra.head_soccer_2d_game.server.model.entities.GameDataSnapshot;
-import hr.algebra.head_soccer_2d_game.shared.enums.GameState;
-import hr.algebra.head_soccer_2d_game.shared.constant.NetworkConstants;
+import hr.algebra.head_soccer_2d_game.server.rmi.ChatRemoteService;
 import hr.algebra.head_soccer_2d_game.shared.constant.WindowSizeConstants;
+import hr.algebra.head_soccer_2d_game.shared.enums.GameState;
 import hr.algebra.head_soccer_2d_game.shared.event.GameDataListener;
 import hr.algebra.head_soccer_2d_game.shared.event.GameOverListener;
+import hr.algebra.head_soccer_2d_game.shared.utilities.ChatUtils;
 import hr.algebra.head_soccer_2d_game.shared.utilities.NetworkUtils;
-import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,12 +24,14 @@ import javafx.scene.control.*;
 
 import java.util.Optional;
 
-public class PlaygroundController implements GameOverListener, GameDataListener  {
+public class PlaygroundController implements GameOverListener, GameDataListener {
+    public TextField tfChat;
+    public TextArea taChat;
     private GraphicsContext graphicContext;
     private PlayerRenderer playerRenderer;
     private GameFieldRenderer gameFieldRenderer;
     private PlayerInputHandler playerInputHandler;
-
+    ChatRemoteService chatRemoteService;
     @FXML
     private Canvas gameCanvas;
     @FXML
@@ -44,6 +48,8 @@ public class PlaygroundController implements GameOverListener, GameDataListener 
     public Button btnPause;
     @FXML
     public Button btnResume;
+    @FXML
+    public Button btnSent;
 
     @FXML //ova anotacija omogucuje kontroler metodi initialize da bude selfinitializing
     public void initialize() {
@@ -51,6 +57,7 @@ public class PlaygroundController implements GameOverListener, GameDataListener 
         initCanvas();
         setupInputHandlers();
         initRenderers();
+        initChat();
     }
 
     private void initCanvas() {
@@ -59,6 +66,13 @@ public class PlaygroundController implements GameOverListener, GameDataListener 
         gameCanvas.setHeight(WindowSizeConstants.SCENE_HEIGHT.getValue());
         gameCanvas.setFocusTraversable(true);
         Platform.runLater(() -> gameCanvas.requestFocus());
+    }
+
+    private void initChat() {
+        chatRemoteService = ChatUtils.initializeChatRemoteService().orElse(null);
+        if (chatRemoteService != null) {
+            ChatUtils.getChatRefreshTimeline(chatRemoteService, taChat).play();
+        }
     }
 
     private void setupInputHandlers() {
@@ -83,11 +97,11 @@ public class PlaygroundController implements GameOverListener, GameDataListener 
             if (buttonType.isPresent() && buttonType.get() == btnNewGame) {
                 GameCommand gameCommand = new GameCommand();
                 gameCommand.setGameState(GameState.NEW_GAME);
-                NetworkUtils.sendSnapshot(gameCommand, (int) NetworkConstants.PORT_SERVER_CONTROL.getValue());
-            }else if (buttonType.isPresent() && buttonType.get() == btnClose) {
+//                NetworkUtils.sendSnapshot(gameCommand, (int) NetworkConstants.PORT_SERVER_CONTROL.getValue());
+                NetworkUtils.sendSnapshot(gameCommand, ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_CONTROL_PORT));
+            } else if (buttonType.isPresent() && buttonType.get() == btnClose) {
                 Platform.exit();
             }
-
         });
     }
 
@@ -97,7 +111,7 @@ public class PlaygroundController implements GameOverListener, GameDataListener 
         btnResume.setVisible(true);
         GameCommand gameCommand = new GameCommand();
         gameCommand.setGameState(GameState.PAUSE);
-        NetworkUtils.sendSnapshot(gameCommand, (int) NetworkConstants.PORT_SERVER_CONTROL.getValue());
+        NetworkUtils.sendSnapshot(gameCommand, ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_CONTROL_PORT));
     }
 
     @FXML
@@ -106,7 +120,7 @@ public class PlaygroundController implements GameOverListener, GameDataListener 
         btnPause.setVisible(true);
         GameCommand gameCommand = new GameCommand();
         gameCommand.setGameState(GameState.RUNNING);
-        NetworkUtils.sendSnapshot(gameCommand, (int) NetworkConstants.PORT_SERVER_CONTROL.getValue());
+        NetworkUtils.sendSnapshot(gameCommand, ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_CONTROL_PORT));
         gameCanvas.requestFocus();
     }
 
@@ -116,7 +130,7 @@ public class PlaygroundController implements GameOverListener, GameDataListener 
         restoreGameData(gameDataSnapshot);
     }
 
-      private void restoreGameData(GameDataSnapshot gameDataSnapshot) {
+    private void restoreGameData(GameDataSnapshot gameDataSnapshot) {
         Platform.runLater(() -> {
             updateScoreLabel(gameDataSnapshot.getPlayerOneScore(), gameDataSnapshot.getPlayerTwoScore());
             updateTimerLabel(gameDataSnapshot.getRemainingTime());
@@ -145,27 +159,9 @@ public class PlaygroundController implements GameOverListener, GameDataListener 
         gameFieldRenderer = new GameFieldRenderer(graphicContext);
     }
 
-
-
-//    private void showStartNewGameAlert() {
-//        Platform.runLater(() -> {
-//            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-//            alert.setTitle("No Saved Game");
-//            alert.setHeaderText("No previous game found!");
-//            alert.setContentText("Do you want to start a new game or close the application?");
-//
-//            var btnStart = new ButtonType("Start New Game");
-//            var btnClose = new ButtonType("Close");
-//            alert.getButtonTypes().setAll(btnStart, btnClose);
-//            alert.getDialogPane().getScene().getWindow().setOnCloseRequest(e -> Platform.exit());
-//
-//            var result = alert.showAndWait().orElse(btnClose);
-//
-//            if (result == btnStart) {
-////                startNewGame();
-//            } else {
-//                Platform.exit();
-//            }
-//        });
-//    }
+    public void sendChatMessage() {
+        ChatUtils.sendChatMessage(chatRemoteService, tfChat);
+        System.out.println("CHAT REMOTE SERVICE: " +  chatRemoteService);
+        tfChat.clear();
+    }
 }

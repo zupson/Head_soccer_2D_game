@@ -1,6 +1,7 @@
 package hr.algebra.head_soccer_2d_game.client.main;
 
-import hr.algebra.head_soccer_2d_game.shared.constant.NetworkConstants;
+import hr.algebra.head_soccer_2d_game.client.jndi.ConfigKey;
+import hr.algebra.head_soccer_2d_game.client.jndi.ConfigReader;
 import hr.algebra.head_soccer_2d_game.shared.enums.PlayerType;
 import hr.algebra.head_soccer_2d_game.shared.event.GameDataListener;
 import hr.algebra.head_soccer_2d_game.shared.utilities.NetworkUtils;
@@ -30,9 +31,9 @@ public class HeadSoccerApplication extends Application {
 
     private void runSelectedPlayer(GameDataListener controller) {
         if (PlayerType.PLAYER_2.equals(playerType)) {
-            new Thread(() -> NetworkUtils.receiveSnapshot((int) NetworkConstants.PORT_PLAYER_2.getValue(), controller)).start();
+            new Thread(() -> NetworkUtils.receiveSnapshot(ConfigReader.getIntegerValueForKey(ConfigKey.PLAYER_TWO_SERVER_PORT), controller)).start();
         } else {
-            new Thread(() -> NetworkUtils.receiveSnapshot((int) NetworkConstants.PORT_PLAYER_1.getValue(), controller)).start();
+            new Thread(() -> NetworkUtils.receiveSnapshot(ConfigReader.getIntegerValueForKey(ConfigKey.PLAYER_ONE_SERVER_PORT), controller)).start();
         }
     }
 

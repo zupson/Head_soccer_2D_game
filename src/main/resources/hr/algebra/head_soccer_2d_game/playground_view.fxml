@@ -6,6 +6,8 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
@@ -43,7 +45,10 @@
                </font>
            </Label>
          <Button fx:id="btnPause" layoutX="922.0" layoutY="23.0" mnemonicParsing="false" onAction="#onPauseClicked" text="Pause" />
-         <Button fx:id="btnResume" layoutX="922.0" layoutY="23.0" mnemonicParsing="false" onAction="#onResumeClicked" text="Resume"  visible="false"/>
+         <Button fx:id="btnResume" layoutX="922.0" layoutY="23.0" mnemonicParsing="false" onAction="#onResumeClicked" text="Resume" visible="false" />
+         <Button fx:id="btnSent" layoutX="197.0" layoutY="90.0" mnemonicParsing="false" onAction="#sendChatMessage" prefHeight="35.0" prefWidth="111.0" text="Send message" />
+         <TextField fx:id="tfChat" layoutX="20.0" layoutY="95.0" prefHeight="22.0" prefWidth="150.0" />
+         <TextArea fx:id="taChat" layoutX="14.0" layoutY="9.0" prefHeight="77.0" prefWidth="295.0" />
        </AnchorPane>
    </center>
 </BorderPane>

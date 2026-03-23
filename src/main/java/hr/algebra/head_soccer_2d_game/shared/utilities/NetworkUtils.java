@@ -1,9 +1,10 @@
 package hr.algebra.head_soccer_2d_game.shared.utilities;
 
+import hr.algebra.head_soccer_2d_game.client.jndi.ConfigKey;
+import hr.algebra.head_soccer_2d_game.client.jndi.ConfigReader;
 import hr.algebra.head_soccer_2d_game.server.model.entities.GameCommand;
 import hr.algebra.head_soccer_2d_game.server.model.entities.GameDataSnapshot;
 import hr.algebra.head_soccer_2d_game.server.model.entities.PlayerInput;
-import hr.algebra.head_soccer_2d_game.shared.constant.NetworkConstants;
 import hr.algebra.head_soccer_2d_game.shared.event.GameCommandListener;
 import hr.algebra.head_soccer_2d_game.shared.event.GameDataListener;
 import hr.algebra.head_soccer_2d_game.shared.event.PlayerInputListener;
@@ -22,7 +23,8 @@ public class NetworkUtils {
     public static final ExecutorService threadPool = Executors.newFixedThreadPool(4); // 2 - Playerinput(player1, player2), 1 - gameCommand, 1 - za svaki slucaj
 
     public static void sendSnapshot(Serializable gameDataSnapshot, int port) {
-        try (Socket clientSocket = new Socket(NetworkConstants.HOST.getValue().toString(), port)) {
+//        try (Socket clientSocket = new Socket(NetworkConstants.HOST.getValue().toString(), port)) {
+        try (Socket clientSocket = new Socket(ConfigReader.getStringValue(ConfigKey.HOSTNAME), port)) {
             writeSnapshot(clientSocket, gameDataSnapshot);
         } catch (IOException e) {
             throw new RuntimeException(e);

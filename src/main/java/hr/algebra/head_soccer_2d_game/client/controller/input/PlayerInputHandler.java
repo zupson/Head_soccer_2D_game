@@ -1,7 +1,8 @@
 package hr.algebra.head_soccer_2d_game.client.controller.input;
 
+import hr.algebra.head_soccer_2d_game.client.jndi.ConfigKey;
+import hr.algebra.head_soccer_2d_game.client.jndi.ConfigReader;
 import hr.algebra.head_soccer_2d_game.server.model.entities.PlayerInput;
-import hr.algebra.head_soccer_2d_game.shared.constant.NetworkConstants;
 import hr.algebra.head_soccer_2d_game.shared.enums.PlayerType;
 import hr.algebra.head_soccer_2d_game.shared.utilities.NetworkUtils;
 import javafx.scene.input.KeyEvent;
@@ -30,8 +31,10 @@ public class PlayerInputHandler {
         playerInput.setPlayerType(playerType);
         playerInput.setKeyPressed(isPressed);
         switch (playerType) {
-            case PlayerType.PLAYER_1 -> targetPort = (int) NetworkConstants.PORT_SERVER_FROM_PLAYER_1.getValue();
-            case PlayerType.PLAYER_2 -> targetPort = (int) NetworkConstants.PORT_SERVER_FROM_PLAYER_2.getValue();
+            case PlayerType.PLAYER_1 ->
+                    targetPort = ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_PLAYER_ONE_PORT);
+            case PlayerType.PLAYER_2 ->
+                    targetPort = ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_PLAYER_TWO_PORT);
         }
         NetworkUtils.sendSnapshot(playerInput, targetPort);
     }

@@ -21,7 +21,7 @@ public class PlayerInputHandler {
     }
 
     public void applyInput(Player player) {
-        System.out.println("applyInput called, pressedKeys: " + pressedKeys);
+//        System.out.println("applyInput called, pressedKeys: " + pressedKeys);
         Body body = player.getBody();
         if (pressedKeys.contains(InputType.LEFT.getValue())) {
             System.out.println("APPLYING LEFT FORCE to body at: " + body.getTransform().getTranslationX());
