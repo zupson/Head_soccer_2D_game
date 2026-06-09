@@ -6,19 +6,21 @@ import hr.algebra.head_soccer_2d_game.server.input.PlayerInputHandler;
 import hr.algebra.head_soccer_2d_game.server.manager.GameObjectManager;
 import hr.algebra.head_soccer_2d_game.server.manager.GamePhysicManager;
 import hr.algebra.head_soccer_2d_game.server.manager.GameStateManager;
-import hr.algebra.head_soccer_2d_game.server.model.entities.GameCommand;
-import hr.algebra.head_soccer_2d_game.server.model.entities.GameDataSnapshot;
-import hr.algebra.head_soccer_2d_game.server.model.entities.Player;
-import hr.algebra.head_soccer_2d_game.server.model.entities.PlayerInput;
+import hr.algebra.head_soccer_2d_game.server.model.GameCommand;
+import hr.algebra.head_soccer_2d_game.server.model.GameDataSnapshot;
+import hr.algebra.head_soccer_2d_game.server.model.PlayerInput;
+import hr.algebra.head_soccer_2d_game.shared.annotations.BusinessLogic;
 import hr.algebra.head_soccer_2d_game.shared.enums.GameState;
-import hr.algebra.head_soccer_2d_game.shared.enums.PlayerType;
 import hr.algebra.head_soccer_2d_game.shared.enums.Side;
 import hr.algebra.head_soccer_2d_game.shared.event.*;
 import hr.algebra.head_soccer_2d_game.shared.utilities.FileUtils;
 import hr.algebra.head_soccer_2d_game.shared.utilities.NetworkUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import static hr.algebra.head_soccer_2d_game.shared.utilities.NetworkUtils.threadPool;
 
+@Slf4j
+@BusinessLogic(description = "Main game engine, coordinates game flow")
 public class GameEngine implements GoalListener, GameDataListener, GameOverListener, PlayerInputListener, GameCommandListener, PlayerInputApplier {
     private GameObjectManager gameObjectManager;
     private GamePhysicManager gamePhysicManager;
@@ -26,28 +28,33 @@ public class GameEngine implements GoalListener, GameDataListener, GameOverListe
     private GameLoop gameLoop;
     private final PlayerInputHandler playerOneInputHandler = new PlayerInputHandler();
     private final PlayerInputHandler playerTwoInputHandler = new PlayerInputHandler();
+    private int readyPlayerCounter = 0;
 
     public void init() {
         GameSingleton.init(this);
-        getCurrentInstanceForManagers(GameSingleton.getCurrentInstance());
+        loadManagersFromSingleton(GameSingleton.getCurrentInstance());
         gamePhysicManager.setGoalListener(this);
+        initNetwork();
+        initGameLoop();
+    }
 
+    private void initNetwork() {
         NetworkUtils.receivePlayerInput(ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_PLAYER_ONE_PORT), this);
         NetworkUtils.receivePlayerInput(ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_PLAYER_TWO_PORT), this);
         NetworkUtils.receiveGameCommand(ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_CONTROL_PORT), this);
-
-        gameLoop = new GameLoop(this, this, gameObjectManager, gamePhysicManager, gameStateManager, this);
-        gameLoop.startGameLoop();
-        gameStateManager.setCurrentState(GameState.RUNNING);
     }
 
-    private void getCurrentInstanceForManagers(GameSingleton currentInstance) {
+    private void initGameLoop() {
+        gameLoop = new GameLoop(this, this, gameObjectManager, gamePhysicManager, gameStateManager, this);
+        gameLoop.startGameLoop();
+    }
+
+    private void loadManagersFromSingleton(GameSingleton currentInstance) {
         gameObjectManager = currentInstance.getGameObjectManager();
         gamePhysicManager = currentInstance.getGamePhysicManager();
         gameStateManager = currentInstance.getGameStateManager();
     }
 
-    //update gameObjectManager props for every goal scores on right value
     @Override
     public void onGoalScored(Side side) {
         switch (side) {
@@ -57,7 +64,6 @@ public class GameEngine implements GoalListener, GameDataListener, GameOverListe
         gameStateManager.setScoredGoalFlag(true);
     }
 
-    //Starting TRAM station = Crnomerec
     @Override
     public void onGameDataChanged(GameDataSnapshot gameDataSnapshot) {
         threadPool.submit(() -> {
@@ -69,30 +75,31 @@ public class GameEngine implements GoalListener, GameDataListener, GameOverListe
     @Override
     public void onGameOver() {
         gameStateManager.setCurrentState(GameState.GAME_OVER);
-        FileUtils.deleteSave();
+        FileUtils.deleteSavedGameData();
     }
 
     @Override
     public void onPlayerInput(PlayerInput input) {
-        System.out.println("INPUT from: " + input.getPlayerType() + " key: " + input.getKeyCode());
-        Player player = input.getPlayerType() == PlayerType.PLAYER_1
-                ? gameObjectManager.getLeftPlayer()
-                : gameObjectManager.getRightPlayer();
-
-        if (input.getPlayerType() == PlayerType.PLAYER_1) {
-            playerOneInputHandler.handleInput(input, player);
-        } else {
-            playerTwoInputHandler.handleInput(input, player);
+        log.debug("INPUT from: {} key: {}", input.getPlayerType(), input.getKeyCode());
+        switch (input.getPlayerType()) {
+            case PLAYER_1 -> playerOneInputHandler.handleInput(input);
+            case PLAYER_2 -> playerTwoInputHandler.handleInput(input);
         }
     }
 
     @Override
     public void onGameCommand(GameCommand gameCommand) {
-        if (gameCommand.getGameState() == GameState.NEW_GAME) {
-            resetGame();
-        } else {
-            gameStateManager.setCurrentState(gameCommand.getGameState());
+        switch (gameCommand.getGameState()) {
+            case NEW_GAME -> resetGame();
+            case WAITING_FOR_PLAYER -> onPlayerReady();
+            default -> gameStateManager.setCurrentState(gameCommand.getGameState());
         }
+    }
+
+    private void onPlayerReady() {
+        readyPlayerCounter++;
+        if (readyPlayerCounter == 2)
+            gameStateManager.setCurrentState(GameState.RUNNING);
     }
 
     @Override
@@ -102,11 +109,19 @@ public class GameEngine implements GoalListener, GameDataListener, GameOverListe
     }
 
     private void resetGame() {
-        gameObjectManager.getLeftGoal().setScore(0);
-        gameObjectManager.getRightGoal().setScore(0);
-        gameObjectManager.setPlayersStartPositions();
-        gameObjectManager.setBallStartPosition();
+        resetScores();
+        resetPositions();
         gameLoop.resetTimer();
         gameStateManager.setCurrentState(GameState.RUNNING);
+    }
+
+    private void resetPositions() {
+        gameObjectManager.setPlayersStartPositions();
+        gameObjectManager.setBallStartPosition();
+    }
+
+    private void resetScores() {
+        gameObjectManager.getLeftGoal().setScore(0);
+        gameObjectManager.getRightGoal().setScore(0);
     }
 }

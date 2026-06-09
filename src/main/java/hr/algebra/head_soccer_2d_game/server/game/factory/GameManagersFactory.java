@@ -1,10 +1,12 @@
 package hr.algebra.head_soccer_2d_game.server.game.factory;
 
+import hr.algebra.head_soccer_2d_game.shared.annotations.BusinessLogic;
 import hr.algebra.head_soccer_2d_game.shared.event.GoalListener;
 import hr.algebra.head_soccer_2d_game.server.manager.GameObjectManager;
 import hr.algebra.head_soccer_2d_game.server.manager.GamePhysicManager;
 import hr.algebra.head_soccer_2d_game.server.manager.GameStateManager;
 
+@BusinessLogic(description = "Factory for creating game manager instances")
 public class GameManagersFactory {
 
     public GameObjectManager createGameObjectManager() {

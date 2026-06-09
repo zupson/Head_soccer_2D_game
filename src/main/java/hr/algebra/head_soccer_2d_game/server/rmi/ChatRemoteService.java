@@ -9,5 +9,4 @@ public interface ChatRemoteService extends Remote {
 
     void sendChatMessage(String message) throws RemoteException;
     List<String> getAllMessages() throws RemoteException;
-
 }

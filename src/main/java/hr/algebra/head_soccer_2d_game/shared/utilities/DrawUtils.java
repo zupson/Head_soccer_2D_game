@@ -6,11 +6,10 @@ import hr.algebra.head_soccer_2d_game.shared.constant.PosConstants;
 import hr.algebra.head_soccer_2d_game.shared.enums.Side;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class DrawUtils {
-    private DrawUtils() {
-    }
-
     private static final double SCALE = 100.0;
 
     public static void drawFloor(GraphicsContext gC) {
@@ -41,15 +40,18 @@ public class DrawUtils {
                 ColorConstants.BOUNDERY_COLOR);
     }
 
-    private static void drawBoundary(GraphicsContext gC, double pos_x, double pos_y, double width, double height, Color c) {
-        double scaled_width = width * SCALE;
-        double scaled_height = height * SCALE;
-        double scaled_centerX = pos_x * SCALE;
-        double scaled_centerY = pos_y * SCALE;
-        double canvasY = gC.getCanvas().getHeight() - (scaled_centerY + scaled_height / 2);
-        double canvasX = scaled_centerX - scaled_width / 2;
+    private static void drawBoundary(GraphicsContext gC, double posX, double posY,
+                                     double width, double height, Color c) {
+        double scaledWidth = width * SCALE;
+        double scaledHeight = height * SCALE;
+        double scaledCenterX = posX * SCALE;
+        double scaledCenterY = posY * SCALE;
+
+        double canvasY = gC.getCanvas().getHeight() - (scaledCenterY + scaledHeight / 2);
+        double canvasX = scaledCenterX - scaledWidth / 2;
+
         gC.setFill(c);
-        gC.fillRect(canvasX, canvasY, scaled_width, scaled_height);
+        gC.fillRect(canvasX, canvasY, scaledWidth, scaledHeight);
     }
 
     public static void drawGoal(GraphicsContext gC, Side side) {
@@ -59,47 +61,52 @@ public class DrawUtils {
 
         double baseY = gC.getCanvas().getHeight() - (PosConstants.GAME_OBJECT_POS_Y.getValue() * SCALE);
 
-        double scaled_goalWidth = DimenConstants.GOAL_WIDTH.getValue() * SCALE;
-        double scaled_goalHeight = DimenConstants.GOAL_HEIGHT.getValue() * SCALE;
-        double crossbarHeight = scaled_goalHeight / 10.0;
-        double postWidth = scaled_goalWidth / 3.0;
+        double scaledGoalWidth = DimenConstants.GOAL_WIDTH.getValue() * SCALE;
+        double scaledGoalHeight = DimenConstants.GOAL_HEIGHT.getValue() * SCALE;
+
+        double crossbarHeight = scaledGoalHeight / 10.0;
+        double postWidth = scaledGoalWidth / 3.0;
 
         gC.setFill(ColorConstants.GOALS_COLOR);
+        drawGoalShape(gC, side, baseX, scaledGoalWidth, baseY, scaledGoalHeight, crossbarHeight, postWidth);
+    }
 
+    private static void drawGoalShape(GraphicsContext gC, Side side, double baseX, double scaledGoalWidth,
+                                      double baseY, double scaledGoalHeight, double crossbarHeight, double postWidth) {
         if (Side.LEFT == side) {
-            gC.fillRect(baseX - scaled_goalWidth / 2, baseY - scaled_goalHeight, scaled_goalWidth, crossbarHeight);
-            gC.fillRect(baseX - scaled_goalWidth / 2, baseY - scaled_goalHeight, postWidth, scaled_goalHeight);
+            gC.fillRect(baseX - scaledGoalWidth / 2, baseY - scaledGoalHeight, scaledGoalWidth, crossbarHeight);
+            gC.fillRect(baseX - scaledGoalWidth / 2, baseY - scaledGoalHeight, postWidth, scaledGoalHeight);
         } else if (Side.RIGHT == side) {
-            double crossbarX = baseX + scaled_goalWidth / 2 - scaled_goalWidth;
-            double postX = baseX + scaled_goalWidth / 2 - postWidth;
-            gC.fillRect(crossbarX, baseY - scaled_goalHeight, scaled_goalWidth, crossbarHeight);
-            gC.fillRect(postX, baseY - scaled_goalHeight, postWidth, scaled_goalHeight);
+            double crossbarX = baseX + scaledGoalWidth / 2 - scaledGoalWidth;
+            double postX = baseX + scaledGoalWidth / 2 - postWidth;
+            gC.fillRect(crossbarX, baseY - scaledGoalHeight, scaledGoalWidth, crossbarHeight);
+            gC.fillRect(postX, baseY - scaledGoalHeight, postWidth, scaledGoalHeight);
         }
     }
 
     public static void drawBall(GraphicsContext gC, double x, double y) {
-        double x_scaled = x * SCALE - (DimenConstants.BALL_WIDTH.getValue() * SCALE) / 2;
-        double y_scaled = gC.getCanvas().getHeight() - (y * SCALE) - (DimenConstants.BALL_HEIGHT.getValue() * SCALE);
+        double xScaled = x * SCALE - (DimenConstants.BALL_WIDTH.getValue() * SCALE) / 2;
+        double yScaled = gC.getCanvas().getHeight() - (y * SCALE);
 
-        x_scaled = Math.clamp(x_scaled, 0, gC.getCanvas().getWidth() - DimenConstants.BALL_WIDTH.getValue() * SCALE);
-        y_scaled = Math.clamp(y_scaled, 0, gC.getCanvas().getHeight() - DimenConstants.BALL_HEIGHT.getValue() * SCALE);
+        xScaled = Math.clamp(xScaled, 0, gC.getCanvas().getWidth() - DimenConstants.BALL_WIDTH.getValue() * SCALE);
+        yScaled = Math.clamp(yScaled, 0, gC.getCanvas().getHeight() - DimenConstants.BALL_HEIGHT.getValue() * SCALE);
 
         gC.setFill(ColorConstants.BALL_COLOR);
-        gC.fillOval(x_scaled, y_scaled, DimenConstants.BALL_WIDTH.getValue() * SCALE, DimenConstants.BALL_HEIGHT.getValue() * SCALE);
+        gC.fillOval(xScaled, yScaled, DimenConstants.BALL_WIDTH.getValue() * SCALE, DimenConstants.BALL_HEIGHT.getValue() * SCALE);
     }
 
-    public static void drawPlayer(GraphicsContext gC, double x, double y) {
-        double scaled_x = x * SCALE;
-        double scaled_y = gC.getCanvas().getHeight() - (y * SCALE);
-        double headRadius = DimenConstants.PLAYER_HEIGHT.getValue() / 2.0 * SCALE;
-        double footWidth = DimenConstants.PLAYER_WIDTH.getValue() * SCALE;
-        double footHeight = DimenConstants.PLAYER_HEIGHT.getValue() / 4.0 * SCALE;
+    public static void drawPlayer(GraphicsContext gC, double x, double y, Color color) {
+        double scaledX = x * SCALE;
+        double scaledY = gC.getCanvas().getHeight() - (y * SCALE / 2);
+        double scaledHeadRadius = (DimenConstants.PLAYER_HEIGHT.getValue() / 2.0) * SCALE;
+        double scaledFootWidth = DimenConstants.PLAYER_WIDTH.getValue() * SCALE;
+        double scaledFootHeight = (DimenConstants.PLAYER_HEIGHT.getValue() / 4.0) * SCALE;
 
-        scaled_x = Math.clamp(scaled_x, 0, gC.getCanvas().getWidth() - DimenConstants.PLAYER_WIDTH.getValue() * SCALE);
-        scaled_y = Math.clamp(scaled_y, 0, gC.getCanvas().getHeight() - footHeight);
+        scaledX = Math.clamp(scaledX, 0, (gC.getCanvas().getWidth() - DimenConstants.PLAYER_WIDTH.getValue()) * SCALE);
+        scaledY = Math.clamp(scaledY, 0, gC.getCanvas().getHeight() - scaledFootHeight);
 
-        gC.setFill(ColorConstants.PLAYER_COLOR);
-        gC.fillOval(scaled_x - headRadius, scaled_y - headRadius * 2, headRadius * 2, headRadius * 2);
-        gC.fillRect(scaled_x - footWidth / 2, scaled_y, footWidth, footHeight);
+        gC.setFill(color);
+        gC.fillOval(scaledX - scaledHeadRadius, scaledY - scaledHeadRadius * 2, scaledHeadRadius * 2, scaledHeadRadius * 2);
+        gC.fillRect(scaledX - scaledFootWidth / 2, scaledY, scaledFootWidth, scaledFootHeight);
     }
 }

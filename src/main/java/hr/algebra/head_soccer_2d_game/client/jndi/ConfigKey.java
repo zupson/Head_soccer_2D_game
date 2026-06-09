@@ -1,5 +1,10 @@
 package hr.algebra.head_soccer_2d_game.client.jndi;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum ConfigKey {
     HOSTNAME("host.name"),
     PLAYER_ONE_SERVER_PORT("player.one.server.port"),
@@ -10,12 +15,4 @@ public enum ConfigKey {
     RMI_PORT("rmi.server.port");
 
     private final String key;
-
-    ConfigKey(final String key) {
-        this.key = key;
-    }
-
-    public String getKey() {
-        return key;
-    }
 }

@@ -5,11 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatRemoteServiceImpl implements ChatRemoteService {
-    private final List<String> chatMessages;
-
-    public ChatRemoteServiceImpl() {
-        this.chatMessages = new ArrayList<>();
-    }
+    private final List<String> chatMessages = new ArrayList<>();
 
     @Override
     public void sendChatMessage(String message) throws RemoteException {

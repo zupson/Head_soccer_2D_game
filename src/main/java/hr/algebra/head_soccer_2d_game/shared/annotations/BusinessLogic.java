@@ -1,0 +1,12 @@
+package hr.algebra.head_soccer_2d_game.shared.annotations;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface BusinessLogic {
+    String description() default "";
+}

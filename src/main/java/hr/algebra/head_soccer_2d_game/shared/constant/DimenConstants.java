@@ -1,5 +1,10 @@
 package hr.algebra.head_soccer_2d_game.shared.constant;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum DimenConstants {
     PLAYER_WIDTH(1.0),
     PLAYER_HEIGHT(1.8),
@@ -13,12 +18,4 @@ public enum DimenConstants {
     VERTICAL_BOUNDARY_HEIGHT(7.0);
 
     private final double value;
-
-    DimenConstants(double value) {
-        this.value = value;
-    }
-
-    public double getValue() {
-        return value;
-    }
 }

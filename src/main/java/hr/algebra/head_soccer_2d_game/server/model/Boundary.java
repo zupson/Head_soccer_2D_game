@@ -1,4 +1,4 @@
-package hr.algebra.head_soccer_2d_game.server.model.entities;
+package hr.algebra.head_soccer_2d_game.server.model;
 
 import org.dyn4j.dynamics.Body;
 public class Boundary extends GameObject {

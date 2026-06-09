@@ -4,6 +4,7 @@ import hr.algebra.head_soccer_2d_game.client.jndi.ConfigKey;
 import hr.algebra.head_soccer_2d_game.client.jndi.ConfigReader;
 import hr.algebra.head_soccer_2d_game.shared.enums.PlayerType;
 import hr.algebra.head_soccer_2d_game.shared.event.GameDataListener;
+import hr.algebra.head_soccer_2d_game.shared.utilities.DynamicPopUpUtils;
 import hr.algebra.head_soccer_2d_game.shared.utilities.NetworkUtils;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -27,29 +28,29 @@ public class HeadSoccerApplication extends Application {
         stage.show();
 
         runSelectedPlayer(fxmlLoader.getController());
+        DynamicPopUpUtils.createStartPopUpDialog(playerType);
+
     }
 
     private void runSelectedPlayer(GameDataListener controller) {
-        if (PlayerType.PLAYER_2.equals(playerType)) {
-            new Thread(() -> NetworkUtils.receiveSnapshot(ConfigReader.getIntegerValueForKey(ConfigKey.PLAYER_TWO_SERVER_PORT), controller)).start();
-        } else {
-            new Thread(() -> NetworkUtils.receiveSnapshot(ConfigReader.getIntegerValueForKey(ConfigKey.PLAYER_ONE_SERVER_PORT), controller)).start();
-        }
+        ConfigKey port = switch (playerType) {
+            case PLAYER_2 -> ConfigKey.PLAYER_TWO_SERVER_PORT;
+            default -> ConfigKey.PLAYER_ONE_SERVER_PORT;
+        };
+        NetworkUtils.receiveSnapshot(ConfigReader.getIntegerValueForKey(port), controller);
     }
 
     public static void main(String[] args) {
-        String firstCommandLineArgument = args[0];
-        Boolean playerTypeExists = false;
-
-        for (PlayerType playerType : PlayerType.values()) {
-            if (firstCommandLineArgument.equals(playerType.toString())) {
-                playerTypeExists = true;
-                break;
-            }
-        }
-        if (playerTypeExists) {
-            playerType = PlayerType.valueOf(firstCommandLineArgument);
+        playerType = parsePlayerType(args[0]);
+        if (playerType != null)
             launch();
+    }
+
+    private static PlayerType parsePlayerType(String arg) {
+        try {
+            return PlayerType.valueOf(arg.toUpperCase());
+        }catch (IllegalArgumentException e) {
+            return null;
         }
     }
 }

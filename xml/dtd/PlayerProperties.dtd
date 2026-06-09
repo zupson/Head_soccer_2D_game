@@ -1,0 +1,5 @@
+<!ELEMENT PlayerProperties (PlayerProperty*)>
+<!ELEMENT PlayerProperty (PlayerName, Color, PlayerType)>
+<!ELEMENT PlayerName (#PCDATA)>
+<!ELEMENT Color (#PCDATA)>
+<!ELEMENT PlayerType (#PCDATA)>

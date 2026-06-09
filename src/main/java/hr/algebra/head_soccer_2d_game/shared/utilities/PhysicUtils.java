@@ -1,51 +1,61 @@
 package hr.algebra.head_soccer_2d_game.shared.utilities;
 
-import hr.algebra.head_soccer_2d_game.server.model.entities.*;
+import hr.algebra.head_soccer_2d_game.server.model.*;
 import hr.algebra.head_soccer_2d_game.shared.enums.Side;
+import lombok.experimental.UtilityClass;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Geometry;
 import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Rectangle;
 
+@UtilityClass
 public class PhysicUtils {
-    private PhysicUtils() {}
+    private static final double POST_WIDTH = 0.1;
 
     public static void setupPlayerPhysics(Player player) {
         var headFixture = createCircleFixture(player, 1.0, 0.5, 0.5);
-        var footFixture = createRectangleFixture(player, 1.0, 1.0, 0.0);
+        var footFixture = createRectangleFixture(player);
         var body = player.getBody();
         body.addFixture(headFixture);
         body.addFixture(footFixture);
-        setupBody(player, MassType.NORMAL, 0.2, 1.0, false);
+        setupBody(player, 0.2, 1.0, false);
         body.setUserData(player);
     }
 
     public static void setupGoalPhysics(Goal goal) {
-        double width = goal.getWidth();
-        double height = goal.getHeigh();
-        double postWidth = 0.1;
-        BodyFixture postFixture = null;
-
-        var crossbar = new BodyFixture(Geometry.createRectangle(width, postWidth));
-        crossbar.getShape().translate(0, height / 2 - postWidth / 2);
-        if (goal.getSide() == Side.LEFT) {
-            postFixture = new BodyFixture(Geometry.createRectangle(postWidth, height));
-            postFixture.getShape().translate(-width / 2 + postWidth / 2, 0);
-        } else if (goal.getSide() == Side.RIGHT) {
-            postFixture = new BodyFixture(Geometry.createRectangle(postWidth, height));
-            postFixture.getShape().translate(width / 2 - postWidth / 2, 0);
-        }
+        BodyFixture crossbar = createGoalCrossbar(goal);
+        BodyFixture postFixture = createGoalPost(goal);
         postFixture.setSensor(true);
         postFixture.setUserData(goal);
+        setupGoalBody(goal, postFixture, crossbar);
+    }
 
-        var body = goal.getBody();
-        body.addFixture(crossbar);
-        if (postFixture != null) {
-            body.addFixture(postFixture);
-            postFixture.setUserData(goal);
+    private static BodyFixture createGoalCrossbar(Goal goal) {
+        BodyFixture crossbar = new BodyFixture(Geometry.createRectangle(goal.getWidth(), POST_WIDTH));
+        crossbar.getShape().translate(0, goal.getHeigh() / 2 - POST_WIDTH / 2);
+        return crossbar;
+    }
+
+    private static BodyFixture createGoalPost(Goal goal) {
+        BodyFixture postFixture = null;
+        if (goal.getSide() == Side.LEFT) {
+            postFixture = new BodyFixture(Geometry.createRectangle(POST_WIDTH, goal.getHeigh()));
+            postFixture.getShape().translate(-(goal.getWidth()) / 2 + POST_WIDTH / 2, 0);
+            return postFixture;
+        } else if (goal.getSide() == Side.RIGHT) {
+            postFixture = new BodyFixture(Geometry.createRectangle(POST_WIDTH, goal.getHeigh()));
+            postFixture.getShape().translate(goal.getWidth() / 2 - POST_WIDTH / 2, 0);
+            return postFixture;
         }
+        throw new IllegalArgumentException("Unknown side: " + goal.getSide());
+    }
+
+    private static void setupGoalBody(Goal goal, BodyFixture postFixture, BodyFixture crossbar) {
+        var body = goal.getBody();
         body.setMass(MassType.INFINITE);
         body.setUserData(goal);
+        body.addFixture(postFixture);
+        body.addFixture(crossbar);
     }
 
     public static void setupBallPhysics(Ball ball) {
@@ -53,7 +63,7 @@ public class PhysicUtils {
         ballFixture.setUserData(ball);
         var body = ball.getBody();
         body.addFixture(ballFixture);
-        setupBody(ball, MassType.NORMAL, 0.3, 0.3, true);
+        setupBody(ball, 0.3, 0.3, true);
         body.setAtRest(true);
         body.setUserData(ball);
     }
@@ -80,20 +90,20 @@ public class PhysicUtils {
         return fixture;
     }
 
-    private static BodyFixture createRectangleFixture(Simulable s, double density, double friction, double restitution) {
+    private static BodyFixture createRectangleFixture(Simulable s) {
         double height = s.getHeigh();
         double width = s.getWidth();
         var fixture = new BodyFixture(new Rectangle(width, height));
-        fixture.setDensity(density);
-        fixture.setFriction(friction);
-        fixture.setRestitution(restitution);
+        fixture.setDensity(1.0);
+        fixture.setFriction(1.0);
+        fixture.setRestitution(0.0);
         return fixture;
     }
 
-    private static void setupBody(Simulable s, MassType massType, double linearDamping, double angularDamping, boolean isBullet) {
+    private static void setupBody(Simulable s, double linearDamping, double angularDamping, boolean isBullet) {
         s.getBody().setLinearDamping(linearDamping);
         s.getBody().setAngularDamping(angularDamping);
-        s.getBody().setMass(massType);
+        s.getBody().setMass(MassType.NORMAL);
         s.getBody().setBullet(isBullet);
     }
 

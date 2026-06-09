@@ -1,14 +1,17 @@
 package hr.algebra.head_soccer_2d_game.server.manager;
 
+import hr.algebra.head_soccer_2d_game.server.model.*;
+import hr.algebra.head_soccer_2d_game.shared.annotations.BusinessLogic;
 import hr.algebra.head_soccer_2d_game.shared.constant.DimenConstants;
 import hr.algebra.head_soccer_2d_game.shared.constant.PosConstants;
-import hr.algebra.head_soccer_2d_game.server.model.entities.*;
 import hr.algebra.head_soccer_2d_game.shared.enums.Side;
+import lombok.Getter;
 import org.dyn4j.dynamics.Body;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@BusinessLogic(description = "Manages game objects lifecycle")
+@Getter
 public class GameObjectManager {
 
     private final List<Player> players = new ArrayList<>();
@@ -25,48 +28,29 @@ public class GameObjectManager {
     private Ball ball;
 
     public void initGameObjectManager() {
-        createFloorModel();
-        createCeilingModel();
-        createLeftBoundaryWallModel();
-        createRightBoundaryWallModel();
+        createBoundaries();
         createPlayersModel();
         createGoalsModel();
         createBallModel();
 
-        setFloorFixedPosition();
-        setCeilingFixedPosition();
-        setLeftWallBoundaryFixedPosition();
-        setRightWallBoundaryFixedPosition();
-        setGoalsFixedPositions();
-        setPlayersStartPositions();
-        setBallStartPosition();
+        setFixedPositions();
+        setStartPositions();
     }
 
-    private void createRightBoundaryWallModel() {
-        rightBoundaryWall = new Boundary(new Body(), DimenConstants.VERTICAL_BOUNDARY_WIDTH.getValue(), DimenConstants.VERTICAL_BOUNDARY_HEIGHT.getValue());
-        gameFiledObjects.add(rightBoundaryWall);
-    }
-
-    private void createLeftBoundaryWallModel() {
-        leftBoundaryWall = new Boundary(new Body(), DimenConstants.VERTICAL_BOUNDARY_WIDTH.getValue(), DimenConstants.VERTICAL_BOUNDARY_HEIGHT.getValue());
-        gameFiledObjects.add(leftBoundaryWall);
-    }
-
-    private void createCeilingModel() {
-        ceiling = new Boundary(new Body(), DimenConstants.HORIZONTAL_BOUNDARY_WIDTH.getValue(), DimenConstants.HORIZONTAL_BOUNDARY_HEIGHT.getValue());
-        gameFiledObjects.add(ceiling);
-    }
-
-    private void createFloorModel() {
+    private void createBoundaries() {
         floor = new Boundary(new Body(), DimenConstants.HORIZONTAL_BOUNDARY_WIDTH.getValue(), DimenConstants.HORIZONTAL_BOUNDARY_HEIGHT.getValue());
-        gameFiledObjects.add(floor);
+        ceiling = new Boundary(new Body(), DimenConstants.HORIZONTAL_BOUNDARY_WIDTH.getValue(), DimenConstants.HORIZONTAL_BOUNDARY_HEIGHT.getValue());
+        leftBoundaryWall = new Boundary(new Body(), DimenConstants.VERTICAL_BOUNDARY_WIDTH.getValue(), DimenConstants.VERTICAL_BOUNDARY_HEIGHT.getValue());
+        rightBoundaryWall = new Boundary(new Body(), DimenConstants.VERTICAL_BOUNDARY_WIDTH.getValue(), DimenConstants.VERTICAL_BOUNDARY_HEIGHT.getValue());
+        gameFiledObjects.addAll(List.of(floor, ceiling, leftBoundaryWall, rightBoundaryWall));
     }
+
 
     private void createPlayersModel() {
-        leftPlayer = new Player(new Body(), DimenConstants.PLAYER_WIDTH.getValue(), DimenConstants.PLAYER_HEIGHT.getValue(), Side.LEFT);
+        leftPlayer = new Player(new Body(), DimenConstants.PLAYER_WIDTH.getValue(), DimenConstants.PLAYER_HEIGHT.getValue());
         players.add(leftPlayer);
 
-        rightPlayer = new Player(new Body(), DimenConstants.PLAYER_WIDTH.getValue(), DimenConstants.PLAYER_HEIGHT.getValue(), Side.RIGHT);
+        rightPlayer = new Player(new Body(), DimenConstants.PLAYER_WIDTH.getValue(), DimenConstants.PLAYER_HEIGHT.getValue());
         players.add(rightPlayer);
     }
 
@@ -81,6 +65,19 @@ public class GameObjectManager {
     private void createBallModel() {
         ball = new Ball(new Body(), DimenConstants.BALL_WIDTH.getValue(), DimenConstants.BALL_HEIGHT.getValue());
         gameFiledObjects.add(ball);
+    }
+
+    private void setFixedPositions() {
+        setFloorFixedPosition();
+        setCeilingFixedPosition();
+        setLeftWallBoundaryFixedPosition();
+        setRightWallBoundaryFixedPosition();
+        setGoalsFixedPositions();
+    }
+
+    private void setStartPositions() {
+        setPlayersStartPositions();
+        setBallStartPosition();
     }
 
     private void setRightWallBoundaryFixedPosition() {
@@ -102,21 +99,19 @@ public class GameObjectManager {
     public void setPlayersStartPositions() {
         resetBody(leftPlayer.getBody(),
                 PosConstants.LEFT_PLAYER_POS_X.getValue(),
-                PosConstants.GAME_OBJECT_POS_Y.getValue());
+                PosConstants.PLAYERS_POS_Y.getValue());
 
         resetBody(rightPlayer.getBody(),
                 PosConstants.RIGHT_PLAYER_POS_X.getValue(),
-                PosConstants.GAME_OBJECT_POS_Y.getValue());
+                PosConstants.PLAYERS_POS_Y.getValue());
     }
 
     private void resetBody(Body body, double x, double y) {
         body.setLinearVelocity(0, 0);
         body.setAngularVelocity(0);
         body.clearForce();
-
         body.getTransform().setTranslation(x, y);
         body.getTransform().setRotation(0);
-
         body.setAtRest(false);
     }
 
@@ -128,50 +123,6 @@ public class GameObjectManager {
     public void setBallStartPosition() {
         resetBody(ball.getBody(),
                 PosConstants.BALL_POS_X.getValue(),
-                PosConstants.GAME_OBJECT_POS_Y.getValue());
-    }
-
-    public Player getLeftPlayer() {
-        return leftPlayer;
-    }
-
-    public Player getRightPlayer() {
-        return rightPlayer;
-    }
-
-    public Goal getLeftGoal() {
-        return leftGoal;
-    }
-
-    public Goal getRightGoal() {
-        return rightGoal;
-    }
-
-    public Ball getBall() {
-        return ball;
-    }
-
-    public Boundary getFloor() {
-        return floor;
-    }
-
-    public Boundary getCeiling() {
-        return ceiling;
-    }
-
-    public Boundary getLeftBoundaryWall() {
-        return leftBoundaryWall;
-    }
-
-    public Boundary getRightBoundaryWall() {
-        return rightBoundaryWall;
-    }
-
-    public List<Player> getPlayers() {
-        return players;
-    }
-
-    public List<GameObject> getGameFiledObjects() {
-        return gameFiledObjects;
+                PosConstants.BALL_POS_Y.getValue());
     }
 }

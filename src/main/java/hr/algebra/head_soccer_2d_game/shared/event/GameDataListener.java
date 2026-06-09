@@ -1,5 +1,5 @@
 package hr.algebra.head_soccer_2d_game.shared.event;
-import hr.algebra.head_soccer_2d_game.server.model.entities.GameDataSnapshot;
+import hr.algebra.head_soccer_2d_game.server.model.GameDataSnapshot;
 
 public interface GameDataListener {
     void onGameDataChanged(GameDataSnapshot gameDataSnapshot);

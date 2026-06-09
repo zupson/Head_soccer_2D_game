@@ -1,10 +1,10 @@
 package hr.algebra.head_soccer_2d_game.shared.constant;
 
 import javafx.scene.paint.Color;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class ColorConstants {
-    private ColorConstants() {
-    }
     public static final Color BOUNDERY_COLOR = Color.SKYBLUE;
     public static final Color FLOOR_COLOR = Color.GREEN;
     public static final Color GOALS_COLOR = Color.BLACK;

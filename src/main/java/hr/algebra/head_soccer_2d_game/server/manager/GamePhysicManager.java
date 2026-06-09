@@ -1,10 +1,11 @@
 package hr.algebra.head_soccer_2d_game.server.manager;
 
-import hr.algebra.head_soccer_2d_game.server.model.entities.PlayerInput;
+import hr.algebra.head_soccer_2d_game.server.model.Ball;
+import hr.algebra.head_soccer_2d_game.server.model.Goal;
+import hr.algebra.head_soccer_2d_game.shared.annotations.BusinessLogic;
 import hr.algebra.head_soccer_2d_game.shared.event.GoalListener;
-import hr.algebra.head_soccer_2d_game.server.model.entities.Ball;
-import hr.algebra.head_soccer_2d_game.server.model.entities.Goal;
 import hr.algebra.head_soccer_2d_game.shared.utilities.PhysicUtils;
+import lombok.Setter;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.dynamics.contact.Contact;
@@ -13,25 +14,34 @@ import org.dyn4j.world.ContactCollisionData;
 import org.dyn4j.world.World;
 import org.dyn4j.world.listener.ContactListener;
 
+@BusinessLogic(description = "Manages game physics")
 public class GamePhysicManager implements ContactListener<Body> {
     private final World<Body> world;
+    @Setter
     private GoalListener goalListener;
 
-
     public GamePhysicManager(GoalListener goalListener) {
+        this.goalListener = goalListener;
         world = new World<>();
         world.setGravity(0, -9.81);
         world.addContactListener(this);
     }
 
     public void initPhysics(GameObjectManager gom) {
+        setupPhysics(gom);
+        addToWorld(gom);
+    }
+
+    private void setupPhysics(GameObjectManager gom) {
         setFloorPhysic(gom);
         setBoundaryWallsPhysics(gom);
         setBoundaryCeilingPhysics(gom);
         setGoalsPhysic(gom);
         setPlayersPhysic(gom);
         setBallPhysic(gom);
+    }
 
+    private void addToWorld(GameObjectManager gom) {
         addFloorToWorld(gom);
         addCeilingToWorld(gom);
         addWallsToWorld(gom);
@@ -53,22 +63,18 @@ public class GamePhysicManager implements ContactListener<Body> {
         PhysicUtils.setupFloorPhysics(gom.getFloor());
     }
 
-    private static void setPlayersPhysic(GameObjectManager gom) {
+    private void setPlayersPhysic(GameObjectManager gom) {
         PhysicUtils.setupPlayerPhysics(gom.getLeftPlayer());
         PhysicUtils.setupPlayerPhysics(gom.getRightPlayer());
     }
 
-    private static void setGoalsPhysic(GameObjectManager gom) {
+    private void setGoalsPhysic(GameObjectManager gom) {
         PhysicUtils.setupGoalPhysics(gom.getLeftGoal());
         PhysicUtils.setupGoalPhysics(gom.getRightGoal());
     }
 
-    private static void setBallPhysic(GameObjectManager gom) {
+    private void setBallPhysic(GameObjectManager gom) {
         PhysicUtils.setupBallPhysics(gom.getBall());
-    }
-
-    public void setGoalListener(GoalListener goalListener) {
-        this.goalListener = goalListener;
     }
 
     private void addFloorToWorld(GameObjectManager gom) {
@@ -113,9 +119,7 @@ public class GamePhysicManager implements ContactListener<Body> {
     private void checkGoal(BodyFixture sensor, BodyFixture other) {
         if (!sensor.isSensor()) return;
         var sensorBody = sensor.getUserData();
-//        System.out.println("G P M: sensorBody = " + sensorBody);
         var otherBody = other.getUserData();
-//        System.out.println("G P M: otherBody = " + otherBody); // je null
         if (sensorBody instanceof Goal goal && otherBody instanceof Ball ball) {
             if (goalListener != null)
                 goalListener.onGoalScored(goal.getSide());
@@ -126,27 +130,22 @@ public class GamePhysicManager implements ContactListener<Body> {
     public void persist(ContactCollisionData<Body> contactCollisionData, Contact contact, Contact contact1) {
 
     }
-
     @Override
     public void end(ContactCollisionData<Body> contactCollisionData, Contact contact) {
 
     }
-
     @Override
     public void destroyed(ContactCollisionData<Body> contactCollisionData, Contact contact) {
 
     }
-
     @Override
     public void collision(ContactCollisionData<Body> contactCollisionData) {
 
     }
-
     @Override
     public void preSolve(ContactCollisionData<Body> contactCollisionData, Contact contact) {
 
     }
-
     @Override
     public void postSolve(ContactCollisionData<Body> contactCollisionData, SolvedContact solvedContact) {
 
