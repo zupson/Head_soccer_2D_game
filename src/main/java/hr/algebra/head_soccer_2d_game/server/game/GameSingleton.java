@@ -22,7 +22,7 @@ public class GameSingleton {
         var gameFactory = new GameManagersFactory();
         gameObjectManager = gameFactory.createGameObjectManager();
         gameStateManager = gameFactory.createStateManager();
-        gamePhysicManager = gameFactory.cretePhysicsManager(gameObjectManager, goalListener);
+        gamePhysicManager = gameFactory.createPhysicsManager(gameObjectManager, goalListener, gameStateManager);
     }
 
     public static void init(GoalListener goalListener) {

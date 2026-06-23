@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum WindowSizeConstants {
-
     SCENE_WIDTH(1000),
     SCENE_HEIGHT(700);
 

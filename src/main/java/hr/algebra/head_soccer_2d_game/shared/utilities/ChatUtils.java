@@ -23,9 +23,11 @@ import java.util.Optional;
 @UtilityClass
 public class ChatUtils {
 
-    public static Timeline getChatRefreshTimeline(ChatRemoteService chatRemoteService, TextArea chatMessageTextArea) {
+    public static Timeline getChatRefreshTimeline(ChatRemoteService chatRemoteService,
+                                                  TextArea chatMessageTextArea) {
         Timeline chatMessagesRefreshTimeLine = new Timeline(
-                new KeyFrame(Duration.ZERO, e -> refreshChatMessages(chatRemoteService, chatMessageTextArea)),
+                new KeyFrame(Duration.ZERO,
+                        e -> refreshChatMessages(chatRemoteService, chatMessageTextArea)),
                 new KeyFrame(Duration.seconds(1)));
 
         chatMessagesRefreshTimeLine.setCycleCount(Animation.INDEFINITE);
@@ -44,7 +46,7 @@ public class ChatUtils {
     public static void sendChatMessage(ChatRemoteService chatRemoteService, TextField chatMessageTextField) {
         String chatMessage = chatMessageTextField.getText();
         try {
-            chatRemoteService.sendChatMessage(HeadSoccerApplication.playerType + ": " + chatMessage);
+            chatRemoteService.sendChatMessage(HeadSoccerApplication.getPlayerType() + ": " + chatMessage);
         } catch (RemoteException ex) {
             log.error("Send chat error: {}", ex.getMessage());
         }

@@ -13,7 +13,7 @@ public class GameStateManager {
     private boolean scoredGoalFlag;
 
     public GameStateManager() {
-        currentState = GameState.MENU;
+        currentState = GameState.PAUSE;
     }
 
     public void setCurrentState(GameState newState) {

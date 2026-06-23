@@ -19,9 +19,11 @@ public class GamePhysicManager implements ContactListener<Body> {
     private final World<Body> world;
     @Setter
     private GoalListener goalListener;
+    private GameStateManager gameStateManager;
 
-    public GamePhysicManager(GoalListener goalListener) {
+    public GamePhysicManager(GoalListener goalListener, GameStateManager gameStateManager) {
         this.goalListener = goalListener;
+        this.gameStateManager = gameStateManager;
         world = new World<>();
         world.setGravity(0, -9.81);
         world.addContactListener(this);
@@ -117,35 +119,46 @@ public class GamePhysicManager implements ContactListener<Body> {
     }
 
     private void checkGoal(BodyFixture sensor, BodyFixture other) {
-        if (!sensor.isSensor()) return;
+        if (!sensor.isSensor())
+            return;
         var sensorBody = sensor.getUserData();
         var otherBody = other.getUserData();
+
         if (sensorBody instanceof Goal goal && otherBody instanceof Ball ball) {
-            if (goalListener != null)
+            if (goalListener != null && !gameStateManager.isScoredGoalFlag())
                 goalListener.onGoalScored(goal.getSide());
         }
     }
 
     @Override
     public void persist(ContactCollisionData<Body> contactCollisionData, Contact contact, Contact contact1) {
+        BodyFixture fixture1 = contactCollisionData.getFixture1();
+        BodyFixture fixture2 = contactCollisionData.getFixture2();
 
+        checkGoal(fixture1, fixture2);
+        checkGoal(fixture2, fixture1);
     }
+
     @Override
     public void end(ContactCollisionData<Body> contactCollisionData, Contact contact) {
 
     }
+
     @Override
     public void destroyed(ContactCollisionData<Body> contactCollisionData, Contact contact) {
 
     }
+
     @Override
     public void collision(ContactCollisionData<Body> contactCollisionData) {
 
     }
+
     @Override
     public void preSolve(ContactCollisionData<Body> contactCollisionData, Contact contact) {
 
     }
+
     @Override
     public void postSolve(ContactCollisionData<Body> contactCollisionData, SolvedContact solvedContact) {
 

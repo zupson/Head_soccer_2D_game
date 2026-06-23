@@ -59,7 +59,8 @@ public class ServerApplication {
 
     private static void bindChatService(Registry registry) throws RemoteException {
         ChatRemoteService chatRemoteService = new ChatRemoteServiceImpl();
-        ChatRemoteService remote = (ChatRemoteService) UnicastRemoteObject.exportObject(chatRemoteService, RANDOM_PORT_HINT);
+        ChatRemoteService remote = (ChatRemoteService) UnicastRemoteObject.exportObject(chatRemoteService,
+                RANDOM_PORT_HINT);
         registry.rebind(ChatRemoteService.REMOTE_OBJECT_NAME, remote);
     }
 }

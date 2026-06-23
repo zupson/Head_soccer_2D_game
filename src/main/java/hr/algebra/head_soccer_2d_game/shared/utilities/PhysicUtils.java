@@ -16,6 +16,7 @@ public class PhysicUtils {
         var headFixture = createCircleFixture(player, 1.0, 0.5, 0.5);
         var footFixture = createRectangleFixture(player);
         var body = player.getBody();
+
         body.addFixture(headFixture);
         body.addFixture(footFixture);
         setupBody(player, 0.2, 1.0, false);
@@ -25,14 +26,28 @@ public class PhysicUtils {
     public static void setupGoalPhysics(Goal goal) {
         BodyFixture crossbar = createGoalCrossbar(goal);
         BodyFixture postFixture = createGoalPost(goal);
-        postFixture.setSensor(true);
-        postFixture.setUserData(goal);
-        setupGoalBody(goal, postFixture, crossbar);
+        BodyFixture sensorFixture = createGoalAreaSensor(goal);
+
+        setupGoalBody(goal, postFixture, sensorFixture);
+    }
+
+    private static BodyFixture createGoalAreaSensor(Goal goal) {
+        BodyFixture sensor = new BodyFixture(
+                Geometry.createRectangle(goal.getWidth(), goal.getHeigh())
+        );
+        if (goal.getSide() == Side.LEFT) {
+            sensor.getShape().translate((goal.getWidth() / 2) - (POST_WIDTH / 2), 0);
+        } else {
+            sensor.getShape().translate(-(goal.getWidth() / 2 - (POST_WIDTH / 2)), 0);
+        }
+        sensor.setSensor(true);
+        sensor.setUserData(goal);
+        return sensor;
     }
 
     private static BodyFixture createGoalCrossbar(Goal goal) {
         BodyFixture crossbar = new BodyFixture(Geometry.createRectangle(goal.getWidth(), POST_WIDTH));
-        crossbar.getShape().translate(0, goal.getHeigh() / 2 - POST_WIDTH / 2);
+        crossbar.getShape().translate(0, (goal.getHeigh() / 2) - (POST_WIDTH / 2));
         return crossbar;
     }
 
@@ -40,22 +55,24 @@ public class PhysicUtils {
         BodyFixture postFixture = null;
         if (goal.getSide() == Side.LEFT) {
             postFixture = new BodyFixture(Geometry.createRectangle(POST_WIDTH, goal.getHeigh()));
-            postFixture.getShape().translate(-(goal.getWidth()) / 2 + POST_WIDTH / 2, 0);
+            postFixture.getShape().translate(-(goal.getWidth()) / 2 + (POST_WIDTH / 2), 0);
             return postFixture;
+
         } else if (goal.getSide() == Side.RIGHT) {
             postFixture = new BodyFixture(Geometry.createRectangle(POST_WIDTH, goal.getHeigh()));
-            postFixture.getShape().translate(goal.getWidth() / 2 - POST_WIDTH / 2, 0);
+            postFixture.getShape().translate((goal.getWidth() / 2) - (POST_WIDTH / 2), 0);
             return postFixture;
         }
         throw new IllegalArgumentException("Unknown side: " + goal.getSide());
     }
 
-    private static void setupGoalBody(Goal goal, BodyFixture postFixture, BodyFixture crossbar) {
+    private static void setupGoalBody(Goal goal, BodyFixture postFixture,
+                                      BodyFixture sensorFixture) {
         var body = goal.getBody();
         body.setMass(MassType.INFINITE);
         body.setUserData(goal);
         body.addFixture(postFixture);
-        body.addFixture(crossbar);
+        body.addFixture(sensorFixture);
     }
 
     public static void setupBallPhysics(Ball ball) {

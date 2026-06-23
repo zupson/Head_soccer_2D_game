@@ -15,8 +15,10 @@ public class GameManagersFactory {
         return gameObjectManager;
     }
 
-    public GamePhysicManager cretePhysicsManager(GameObjectManager gom, GoalListener goalListener) {
-        var gamePhysicManager = new GamePhysicManager(goalListener);
+    public GamePhysicManager createPhysicsManager(GameObjectManager gom,
+                                                  GoalListener goalListener,
+                                                  GameStateManager gameStateManager) {
+        var gamePhysicManager = new GamePhysicManager(goalListener, gameStateManager);
         gamePhysicManager.initPhysics(gom);
         return gamePhysicManager;
     }

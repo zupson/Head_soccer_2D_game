@@ -8,32 +8,26 @@ import hr.algebra.head_soccer_2d_game.shared.utilities.XMLUtils;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-
+@Slf4j
 @RequiredArgsConstructor
 public class PlayerRenderer implements Drawable {
     private final GraphicsContext graphicsContext;
-    private List<PlayerProperty> playerProperties;
 
     @Override
     public void draw(GameDataSnapshot gameDataSnapshot) {
-        if (getPlayerProperties().isEmpty()) {
+        List<PlayerProperty> props = loadPlayerPropertiesFromXML();
+        if (props.isEmpty()) {
             drawDefaultPlayers(gameDataSnapshot);
             return;
         }
-
-        drawPlayersFromProperties(gameDataSnapshot);
-    }
-
-    private List<PlayerProperty> getPlayerProperties() {
-        if (playerProperties == null) {
-            playerProperties = loadPlayerPropertiesFromXML();
-        }
-        return playerProperties;
+        drawPlayersFromProperties(props,gameDataSnapshot);
     }
 
     private void drawDefaultPlayers(GameDataSnapshot gameDataSnapshot) {
@@ -43,8 +37,8 @@ public class PlayerRenderer implements Drawable {
                 gameDataSnapshot.getPlayerTwoY(), ColorConstants.PLAYER_COLOR);
     }
 
-    private void drawPlayersFromProperties(GameDataSnapshot gameDataSnapshot) {
-        for (PlayerProperty playerProperty : playerProperties) {
+    private void drawPlayersFromProperties(List<PlayerProperty> props,GameDataSnapshot gameDataSnapshot) {
+        for (PlayerProperty playerProperty : props) {
             switch (playerProperty.getPlayerType()) {
                 case PLAYER_1 -> DrawUtils.drawPlayer(graphicsContext, gameDataSnapshot.getPlayerOneX(),
                         gameDataSnapshot.getPlayerOneY(), playerProperty.getColor());
@@ -58,12 +52,14 @@ public class PlayerRenderer implements Drawable {
         try {
             return XMLUtils.loadPlayerProps();
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e);
+            log.error("Failed to load player properties from XML: {}", e.getMessage());
+            return new ArrayList<>();
         }
     }
 
     public void showPlayerName(Label lbLeftPlayer, Label lbRightPlayer) {
-        for (PlayerProperty playerProperty : playerProperties) {
+        List<PlayerProperty> props = loadPlayerPropertiesFromXML();
+        for (PlayerProperty playerProperty : props) {
             switch (playerProperty.getPlayerType()) {
                 case PLAYER_1 -> lbLeftPlayer.setText(playerProperty.getPlayerName());
                 case PLAYER_2 -> lbRightPlayer.setText(playerProperty.getPlayerName());

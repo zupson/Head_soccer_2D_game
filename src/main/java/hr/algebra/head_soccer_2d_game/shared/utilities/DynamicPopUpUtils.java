@@ -1,8 +1,5 @@
 package hr.algebra.head_soccer_2d_game.shared.utilities;
 
-import hr.algebra.head_soccer_2d_game.client.jndi.ConfigKey;
-import hr.algebra.head_soccer_2d_game.client.jndi.ConfigReader;
-import hr.algebra.head_soccer_2d_game.server.model.GameCommand;
 import hr.algebra.head_soccer_2d_game.server.model.PlayerProperty;
 import hr.algebra.head_soccer_2d_game.shared.enums.GameState;
 import hr.algebra.head_soccer_2d_game.shared.enums.PlayerType;
@@ -58,12 +55,14 @@ public class DynamicPopUpUtils {
         popupStage.showAndWait();
     }
 
-    private static void handleSave(PlayerType playerPlayer, PlayerProperty playerProperty, TextField playerName, ColorPicker color) {
+    private static void handleSave(PlayerType playerPlayer, PlayerProperty playerProperty, TextField playerName,
+                                   ColorPicker color) {
         savePlayerProperty(playerPlayer, playerProperty, playerName, color);
         sendReadyCommand();
     }
 
-    private static void savePlayerProperty(PlayerType playerPlayer, PlayerProperty playerProperty, TextField playerName, ColorPicker color) {
+    private static void savePlayerProperty(PlayerType playerPlayer, PlayerProperty playerProperty,
+                                           TextField playerName, ColorPicker color) {
         playerProperty.setPlayerName(playerName.getText());
         playerProperty.setColor(color.getValue());
         playerProperty.setPlayerType(playerPlayer);
@@ -71,8 +70,6 @@ public class DynamicPopUpUtils {
     }
 
     private static void sendReadyCommand() {
-        GameCommand command = new GameCommand();
-        command.setGameState(GameState.WAITING_FOR_PLAYER);
-        NetworkUtils.sendGameCommand(ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_CONTROL_PORT), command);
+        NetworkUtils.sendGameCommand(GameState.WAITING_FOR_PLAYER);
     }
 }

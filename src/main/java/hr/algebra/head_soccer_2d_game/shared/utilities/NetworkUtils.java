@@ -5,6 +5,7 @@ import hr.algebra.head_soccer_2d_game.client.jndi.ConfigReader;
 import hr.algebra.head_soccer_2d_game.server.model.GameCommand;
 import hr.algebra.head_soccer_2d_game.server.model.GameDataSnapshot;
 import hr.algebra.head_soccer_2d_game.server.model.PlayerInput;
+import hr.algebra.head_soccer_2d_game.shared.enums.GameState;
 import hr.algebra.head_soccer_2d_game.shared.event.GameCommandListener;
 import hr.algebra.head_soccer_2d_game.shared.event.GameDataListener;
 import hr.algebra.head_soccer_2d_game.shared.event.PlayerInputListener;
@@ -37,7 +38,8 @@ public class NetworkUtils {
     }
 
     public static void receiveSnapshot(int port, GameDataListener gameDataListener) {
-        new ReceiverThread(port, socket -> processSnapshot(socket, gameDataListener), threadPool).start();
+        new ReceiverThread(port, socket -> processSnapshot(socket, gameDataListener),
+                threadPool).start();
     }
 
     private static void processSnapshot(Socket clientSocket, GameDataListener gameDataListener) {
@@ -49,7 +51,8 @@ public class NetworkUtils {
     }
 
     public static void receivePlayerInput(int port, PlayerInputListener playerInputListener) {
-        new ReceiverThread(port, socket -> processPlayerInput(socket, playerInputListener), threadPool).start();
+        new ReceiverThread(port, socket -> processPlayerInput(socket, playerInputListener),
+                threadPool).start();
     }
 
     private static void processPlayerInput(Socket clientSocket, PlayerInputListener playerInputListener) {
@@ -61,7 +64,8 @@ public class NetworkUtils {
     }
 
     public static void receiveGameCommand(int port, GameCommandListener gameCommandListener) {
-        new ReceiverThread(port, socket -> processGameCommand(socket, gameCommandListener), threadPool).start();
+        new ReceiverThread(port, socket -> processGameCommand(socket, gameCommandListener),
+                threadPool).start();
     }
 
     private static void processGameCommand(Socket clientSocket, GameCommandListener gameCommandListener) {
@@ -72,7 +76,10 @@ public class NetworkUtils {
         }
     }
 
-    public static void sendGameCommand(int port, GameCommand gameCommand) {
-        sendObject(gameCommand, port);
+    public static void sendGameCommand(GameState newGame) {
+        GameCommand gameCommand = new GameCommand();
+        gameCommand.setGameState(newGame);
+        NetworkUtils.sendSnapshot(gameCommand,
+                ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_CONTROL_PORT));
     }
 }

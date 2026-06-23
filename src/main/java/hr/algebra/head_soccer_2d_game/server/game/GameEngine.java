@@ -15,13 +15,16 @@ import hr.algebra.head_soccer_2d_game.shared.enums.Side;
 import hr.algebra.head_soccer_2d_game.shared.event.*;
 import hr.algebra.head_soccer_2d_game.shared.utilities.FileUtils;
 import hr.algebra.head_soccer_2d_game.shared.utilities.NetworkUtils;
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 
 import static hr.algebra.head_soccer_2d_game.shared.utilities.NetworkUtils.threadPool;
 
 @Slf4j
 @BusinessLogic(description = "Main game engine, coordinates game flow")
-public class GameEngine implements GoalListener, GameDataListener, GameOverListener, PlayerInputListener, GameCommandListener, PlayerInputApplier {
+public class GameEngine implements GoalListener, GameDataListener, GameOverListener,
+        PlayerInputListener, GameCommandListener, PlayerInputApplier {
+
     private GameObjectManager gameObjectManager;
     private GamePhysicManager gamePhysicManager;
     private GameStateManager gameStateManager;
@@ -29,6 +32,8 @@ public class GameEngine implements GoalListener, GameDataListener, GameOverListe
     private final PlayerInputHandler playerOneInputHandler = new PlayerInputHandler();
     private final PlayerInputHandler playerTwoInputHandler = new PlayerInputHandler();
     private int readyPlayerCounter = 0;
+    private int rerunCounter = 0;
+    private int loadGameCounter = 0;
 
     public void init() {
         GameSingleton.init(this);
@@ -39,13 +44,17 @@ public class GameEngine implements GoalListener, GameDataListener, GameOverListe
     }
 
     private void initNetwork() {
-        NetworkUtils.receivePlayerInput(ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_PLAYER_ONE_PORT), this);
-        NetworkUtils.receivePlayerInput(ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_PLAYER_TWO_PORT), this);
-        NetworkUtils.receiveGameCommand(ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_CONTROL_PORT), this);
+        NetworkUtils.receivePlayerInput(ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_PLAYER_ONE_PORT),
+                this);
+        NetworkUtils.receivePlayerInput(ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_PLAYER_TWO_PORT),
+                this);
+        NetworkUtils.receiveGameCommand(ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_CONTROL_PORT),
+                this);
     }
 
     private void initGameLoop() {
-        gameLoop = new GameLoop(this, this, gameObjectManager, gamePhysicManager, gameStateManager, this);
+        gameLoop = new GameLoop(this, this,
+                gameObjectManager, gamePhysicManager, gameStateManager, this);
         gameLoop.startGameLoop();
     }
 
@@ -66,9 +75,12 @@ public class GameEngine implements GoalListener, GameDataListener, GameOverListe
 
     @Override
     public void onGameDataChanged(GameDataSnapshot gameDataSnapshot) {
+
         threadPool.submit(() -> {
-            NetworkUtils.sendSnapshot(gameDataSnapshot, ConfigReader.getIntegerValueForKey(ConfigKey.PLAYER_ONE_SERVER_PORT));
-            NetworkUtils.sendSnapshot(gameDataSnapshot, ConfigReader.getIntegerValueForKey(ConfigKey.PLAYER_TWO_SERVER_PORT));
+            NetworkUtils.sendSnapshot(gameDataSnapshot,
+                    ConfigReader.getIntegerValueForKey(ConfigKey.PLAYER_ONE_SERVER_PORT));
+            NetworkUtils.sendSnapshot(gameDataSnapshot,
+                    ConfigReader.getIntegerValueForKey(ConfigKey.PLAYER_TWO_SERVER_PORT));
         });
     }
 
@@ -91,15 +103,58 @@ public class GameEngine implements GoalListener, GameDataListener, GameOverListe
     public void onGameCommand(GameCommand gameCommand) {
         switch (gameCommand.getGameState()) {
             case NEW_GAME -> resetGame();
+            case LOAD_GAME -> loadGame();
             case WAITING_FOR_PLAYER -> onPlayerReady();
+            case RERUN -> onPlayerRerun();
+            case QUIT -> handleQuit();
             default -> gameStateManager.setCurrentState(gameCommand.getGameState());
         }
     }
 
+    @Synchronized
+    private void loadGame() {
+        loadGameCounter++;
+        if (loadGameCounter == 1) {
+            FileUtils.loadGameFromFile().ifPresentOrElse(
+                    snapshot -> {
+                        gameLoop.setRemainingTime(snapshot.getRemainingTime());
+                        gameObjectManager.getLeftGoal().setScore(snapshot.getPlayerOneScore());
+                        gameObjectManager.getRightGoal().setScore(snapshot.getPlayerTwoScore());
+                        gameStateManager.setCurrentState(GameState.PAUSE);
+                    },
+                    () -> {
+                        log.warn("No saved game found, starting new game.");
+                        resetGame();
+                    }
+            );
+        }
+    }
+
+    @Synchronized
+    private void onPlayerRerun() {
+        rerunCounter++;
+        if (rerunCounter == 2) {
+            rerunCounter = 0;
+            resetGame();
+        }
+    }
+
+    private void handleQuit() {
+        GameCommand quitCommand = new GameCommand();
+        quitCommand.setGameState(GameState.QUIT);
+        NetworkUtils.sendSnapshot(quitCommand,
+                ConfigReader.getIntegerValueForKey(ConfigKey.PLAYER_ONE_SERVER_PORT));
+        NetworkUtils.sendSnapshot(quitCommand,
+                ConfigReader.getIntegerValueForKey(ConfigKey.PLAYER_TWO_SERVER_PORT));
+    }
+
+    @Synchronized
     private void onPlayerReady() {
         readyPlayerCounter++;
-        if (readyPlayerCounter == 2)
+        if (readyPlayerCounter == 2) {
+            readyPlayerCounter = 0;
             gameStateManager.setCurrentState(GameState.RUNNING);
+        }
     }
 
     @Override
@@ -109,6 +164,7 @@ public class GameEngine implements GoalListener, GameDataListener, GameOverListe
     }
 
     private void resetGame() {
+        loadGameCounter = 0;
         resetScores();
         resetPositions();
         gameLoop.resetTimer();

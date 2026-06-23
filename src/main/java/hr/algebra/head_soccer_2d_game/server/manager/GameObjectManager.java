@@ -38,32 +38,41 @@ public class GameObjectManager {
     }
 
     private void createBoundaries() {
-        floor = new Boundary(new Body(), DimenConstants.HORIZONTAL_BOUNDARY_WIDTH.getValue(), DimenConstants.HORIZONTAL_BOUNDARY_HEIGHT.getValue());
-        ceiling = new Boundary(new Body(), DimenConstants.HORIZONTAL_BOUNDARY_WIDTH.getValue(), DimenConstants.HORIZONTAL_BOUNDARY_HEIGHT.getValue());
-        leftBoundaryWall = new Boundary(new Body(), DimenConstants.VERTICAL_BOUNDARY_WIDTH.getValue(), DimenConstants.VERTICAL_BOUNDARY_HEIGHT.getValue());
-        rightBoundaryWall = new Boundary(new Body(), DimenConstants.VERTICAL_BOUNDARY_WIDTH.getValue(), DimenConstants.VERTICAL_BOUNDARY_HEIGHT.getValue());
+        floor = new Boundary(new Body(), DimenConstants.HORIZONTAL_BOUNDARY_WIDTH.getValue(),
+                DimenConstants.HORIZONTAL_BOUNDARY_HEIGHT.getValue());
+        ceiling = new Boundary(new Body(), DimenConstants.HORIZONTAL_BOUNDARY_WIDTH.getValue(),
+                DimenConstants.HORIZONTAL_BOUNDARY_HEIGHT.getValue());
+        leftBoundaryWall = new Boundary(new Body(), DimenConstants.VERTICAL_BOUNDARY_WIDTH.getValue(),
+                DimenConstants.VERTICAL_BOUNDARY_HEIGHT.getValue());
+        rightBoundaryWall = new Boundary(new Body(), DimenConstants.VERTICAL_BOUNDARY_WIDTH.getValue(),
+                DimenConstants.VERTICAL_BOUNDARY_HEIGHT.getValue());
         gameFiledObjects.addAll(List.of(floor, ceiling, leftBoundaryWall, rightBoundaryWall));
     }
 
 
     private void createPlayersModel() {
-        leftPlayer = new Player(new Body(), DimenConstants.PLAYER_WIDTH.getValue(), DimenConstants.PLAYER_HEIGHT.getValue());
+        leftPlayer = new Player(new Body(), DimenConstants.PLAYER_WIDTH.getValue(),
+                DimenConstants.PLAYER_HEIGHT.getValue());
         players.add(leftPlayer);
 
-        rightPlayer = new Player(new Body(), DimenConstants.PLAYER_WIDTH.getValue(), DimenConstants.PLAYER_HEIGHT.getValue());
+        rightPlayer = new Player(new Body(), DimenConstants.PLAYER_WIDTH.getValue(),
+                DimenConstants.PLAYER_HEIGHT.getValue());
         players.add(rightPlayer);
     }
 
     private void createGoalsModel() {
-        leftGoal = new Goal(new Body(), DimenConstants.GOAL_WIDTH.getValue(), DimenConstants.GOAL_HEIGHT.getValue(), Side.LEFT);
+        leftGoal = new Goal(new Body(), DimenConstants.GOAL_WIDTH.getValue(),
+                DimenConstants.GOAL_HEIGHT.getValue(), Side.LEFT);
         gameFiledObjects.add(leftGoal);
 
-        rightGoal = new Goal(new Body(), DimenConstants.GOAL_WIDTH.getValue(), DimenConstants.GOAL_HEIGHT.getValue(), Side.RIGHT);
+        rightGoal = new Goal(new Body(), DimenConstants.GOAL_WIDTH.getValue(),
+                DimenConstants.GOAL_HEIGHT.getValue(), Side.RIGHT);
         gameFiledObjects.add(rightGoal);
     }
 
     private void createBallModel() {
-        ball = new Ball(new Body(), DimenConstants.BALL_WIDTH.getValue(), DimenConstants.BALL_HEIGHT.getValue());
+        ball = new Ball(new Body(), DimenConstants.BALL_WIDTH.getValue(),
+                DimenConstants.BALL_HEIGHT.getValue());
         gameFiledObjects.add(ball);
     }
 
@@ -81,19 +90,23 @@ public class GameObjectManager {
     }
 
     private void setRightWallBoundaryFixedPosition() {
-        rightBoundaryWall.getBody().translate(PosConstants.RIGHT_WALL_FIX_POS_X.getValue(), PosConstants.RIGHT_WALL_FIX_POS_Y.getValue());
+        rightBoundaryWall.getBody().translate(PosConstants.RIGHT_WALL_FIX_POS_X.getValue(),
+                PosConstants.RIGHT_WALL_FIX_POS_Y.getValue());
     }
 
     private void setLeftWallBoundaryFixedPosition() {
-        leftBoundaryWall.getBody().translate(PosConstants.LEFT_WALL_FIX_POS_X.getValue(), PosConstants.LEFT_WALL_FIX_POS_Y.getValue());
+        leftBoundaryWall.getBody().translate(PosConstants.LEFT_WALL_FIX_POS_X.getValue(),
+                PosConstants.LEFT_WALL_FIX_POS_Y.getValue());
     }
 
     private void setCeilingFixedPosition() {
-        ceiling.getBody().translate(PosConstants.CELLING_FIX_POS_X.getValue(), PosConstants.CELLING_FIX_POS_Y.getValue());
+        ceiling.getBody().translate(PosConstants.CELLING_FIX_POS_X.getValue(),
+                PosConstants.CELLING_FIX_POS_Y.getValue());
     }
 
     private void setFloorFixedPosition() {
-        floor.getBody().translate(PosConstants.FLOOR_FIX_POS_X.getValue(), PosConstants.FLOOR_FIX_POS_Y.getValue());
+        floor.getBody().translate(PosConstants.FLOOR_FIX_POS_X.getValue(),
+                PosConstants.FLOOR_FIX_POS_Y.getValue());
     }
 
     public void setPlayersStartPositions() {
@@ -116,8 +129,10 @@ public class GameObjectManager {
     }
 
     private void setGoalsFixedPositions() {
-        leftGoal.getBody().translate(PosConstants.LEFT_GOAL_FIX_POS_X.getValue(), PosConstants.GAME_OBJECT_POS_Y.getValue());
-        rightGoal.getBody().translate(PosConstants.RIGHT_GOAL_FIX_POS_X.getValue(), PosConstants.GAME_OBJECT_POS_Y.getValue());
+        leftGoal.getBody().translate(PosConstants.LEFT_GOAL_FIX_POS_X.getValue(),
+                PosConstants.GAME_OBJECT_POS_Y.getValue());
+        rightGoal.getBody().translate(PosConstants.RIGHT_GOAL_FIX_POS_X.getValue(),
+                PosConstants.GAME_OBJECT_POS_Y.getValue());
     }
 
     public void setBallStartPosition() {

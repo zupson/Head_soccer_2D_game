@@ -4,10 +4,9 @@ import hr.algebra.head_soccer_2d_game.server.model.GameDataSnapshot;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
+import java.util.Optional;
+
 @Slf4j
 @UtilityClass
 public class FileUtils {
@@ -27,6 +26,19 @@ public class FileUtils {
         File file = new File(SAVE_GAME_FILE_PATH);
         if (!file.delete()) {
             log.warn("Failed to delete save file: {}", SAVE_GAME_FILE_PATH);
+        }
+    }
+
+    public static boolean savedGameExists() {
+        return new File(SAVE_GAME_FILE_PATH).exists();
+    }
+
+    public static Optional<GameDataSnapshot> loadGameFromFile() {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(SAVE_GAME_FILE_PATH))) {
+            return Optional.of((GameDataSnapshot) in.readObject());
+        } catch (IOException | ClassNotFoundException e) {
+            log.error("Failed to load game from file: {}", e.getMessage());
+            return Optional.empty();
         }
     }
 }

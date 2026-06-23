@@ -7,7 +7,8 @@ import hr.algebra.head_soccer_2d_game.shared.enums.PlayerType;
 import hr.algebra.head_soccer_2d_game.shared.utilities.NetworkUtils;
 import javafx.scene.input.KeyEvent;
 import lombok.RequiredArgsConstructor;
-
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @RequiredArgsConstructor
 public class PlayerInputHandler {
     private final PlayerType playerType;
@@ -21,13 +22,17 @@ public class PlayerInputHandler {
     }
 
     private void sendInput(KeyEvent keyEvent, boolean isPressed) {
-        System.out.println("CLIENT SENDING: " + keyEvent.getCode().getName() + " pressed: " + isPressed);
+        log.debug("CLIENT SENDING: {} pressed: {}",
+                keyEvent.getCode().getName(),
+                isPressed);
 
         PlayerInput playerInput = createPlayerInput(keyEvent, isPressed);
 
         int targetPort = switch (playerType) {
-            case PlayerType.PLAYER_1 -> ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_PLAYER_ONE_PORT);
-            case PlayerType.PLAYER_2 -> ConfigReader.getIntegerValueForKey(ConfigKey.SERVER_PLAYER_TWO_PORT);
+            case PlayerType.PLAYER_1 -> ConfigReader
+                    .getIntegerValueForKey(ConfigKey.SERVER_PLAYER_ONE_PORT);
+            case PlayerType.PLAYER_2 -> ConfigReader
+                    .getIntegerValueForKey(ConfigKey.SERVER_PLAYER_TWO_PORT);
         };
 
         NetworkUtils.sendSnapshot(playerInput, targetPort);

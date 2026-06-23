@@ -32,8 +32,10 @@ public class ConfigReader {
 
     private static Hashtable<String, String> buildJndiConfig() {
         Hashtable<String, String> config = new Hashtable<>();
-        config.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.fscontext.RefFSContextFactory");
-        config.put(Context.PROVIDER_URL, "file:src/main/resources");
+        config.put(Context.INITIAL_CONTEXT_FACTORY,
+                "com.sun.jndi.fscontext.RefFSContextFactory");
+        config.put(Context.PROVIDER_URL,
+                "file:src/main/resources");
         return config;
     }
 

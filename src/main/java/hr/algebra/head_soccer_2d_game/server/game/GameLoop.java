@@ -19,11 +19,10 @@ import lombok.Setter;
 public class GameLoop {
     private final GameDataListener gameDataListener;
     private final GameOverListener gameOverListener;
+
     private long lastTime = System.nanoTime();
     private static final double GAME_DURATION = 60;
-    @Setter
-    @Getter
-    private double remainingTime = GAME_DURATION;
+    @Setter @Getter private double remainingTime = GAME_DURATION;
 
     private final GameObjectManager gameObjectManager;
     private final GamePhysicManager gamePhysicManager;
@@ -35,9 +34,13 @@ public class GameLoop {
     }
 
     public void timerTick() {
-        double deltaTime = calculateDeltaTime();
-        if (!gameStateManager.isRunning())
+        if (!gameStateManager.isRunning()){
+            lastTime = System.nanoTime();
+            GameDataSnapshot gameDataSnapshot = GameDataUtils.saveCurrentGameData(this);
+            gameDataListener.onGameDataChanged(gameDataSnapshot);
             return;
+        }
+        double deltaTime = calculateDeltaTime();
 
         remainingTime -= deltaTime;
 
@@ -58,6 +61,8 @@ public class GameLoop {
     private void handleGameOver() {
         remainingTime = 0;
         gameStateManager.setCurrentState(GameState.GAME_OVER);
+        GameDataSnapshot snapshot = GameDataUtils.saveCurrentGameData(this);
+        gameDataListener.onGameDataChanged(snapshot);
         gameOverListener.onGameOver();
     }
 

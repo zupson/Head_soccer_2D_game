@@ -4,6 +4,7 @@ import hr.algebra.head_soccer_2d_game.server.model.PlayerProperty;
 import hr.algebra.head_soccer_2d_game.server.model.PlayerPropsTag;
 import hr.algebra.head_soccer_2d_game.shared.enums.PlayerType;
 import javafx.scene.paint.Color;
+import lombok.Synchronized;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.*;
@@ -35,7 +36,8 @@ public class XMLUtils {
     private static final String PLAYER_PROPS = "PlayerProperties";
     private static final String FILENAME = "xml/PlayerProperties.xml";
 
-    public synchronized static void saveNewPlayerProp(PlayerProperty playerProperty) {
+    @Synchronized
+    public  static void saveNewPlayerProp(PlayerProperty playerProperty) {
         List<PlayerProperty> playerPropertyList;
         try {
             playerPropertyList = loadPlayerProps();
@@ -90,7 +92,8 @@ public class XMLUtils {
         return dom.createDocument(null, element, docType);
     }
 
-    public synchronized static List<PlayerProperty> loadPlayerProps() throws ParserConfigurationException,
+    @Synchronized
+    public static List<PlayerProperty> loadPlayerProps() throws ParserConfigurationException,
             IOException, SAXException {
         return parse(FILENAME);
     }
@@ -131,7 +134,8 @@ public class XMLUtils {
         ArrayList<PlayerProperty> playerProps = new ArrayList<>();
 
         Element documentElement = document.getDocumentElement();
-        NodeList nodes = documentElement.getElementsByTagName(PlayerPropsTag.PLAYER_PROPERTY.getTagName());
+        NodeList nodes = documentElement.getElementsByTagName(
+                PlayerPropsTag.PLAYER_PROPERTY.getTagName());
 
         for (int i = 0; i < nodes.getLength(); i++) {
             Element item = (Element) nodes.item(i);
@@ -145,9 +149,19 @@ public class XMLUtils {
         playerProp.setPlayerName(item.getElementsByTagName(PlayerPropsTag.PLAYER_NAME.getTagName())
                 .item(0).getTextContent());
         playerProp.setColor(
-                Color.valueOf(item.getElementsByTagName(PlayerPropsTag.COLOR.getTagName()).item(0).getTextContent()));
+                Color.valueOf(item.getElementsByTagName(
+                        PlayerPropsTag.COLOR.getTagName()).item(0).getTextContent()));
         playerProp.setPlayerType(
-                PlayerType.valueOf(item.getElementsByTagName(PlayerPropsTag.PLAYER_TYPE.getTagName()).item(0).getTextContent()));
+                PlayerType.valueOf(item.getElementsByTagName(
+                        PlayerPropsTag.PLAYER_TYPE.getTagName()).item(0).getTextContent()));
         return playerProp;
+    }
+
+    public static void deletePlayerProps() {
+        try {
+            Files.deleteIfExists(Path.of(FILENAME));
+        } catch (IOException e) {
+            log.error("Failed to delete player properties: {}", e.getMessage());
+        }
     }
 }

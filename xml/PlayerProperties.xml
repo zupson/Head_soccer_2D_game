@@ -2,63 +2,33 @@
 <!DOCTYPE PlayerProperties SYSTEM "dtd/PlayerProperties.dtd">
 <PlayerProperties>
     <PlayerProperty>
-        <PlayerName>AA</PlayerName>
-        <Color>0x800080ff</Color>
-        <PlayerType>PLAYER_1</PlayerType>
-    </PlayerProperty>
-    <PlayerProperty>
-        <PlayerName>BB</PlayerName>
-        <Color>0x0000ffff</Color>
-        <PlayerType>PLAYER_2</PlayerType>
-    </PlayerProperty>
-    <PlayerProperty>
-        <PlayerName>Ivo</PlayerName>
-        <Color>0x0000ffff</Color>
-        <PlayerType>PLAYER_2</PlayerType>
-    </PlayerProperty>
-    <PlayerProperty>
-        <PlayerName>Pero</PlayerName>
-        <Color>0xff0000ff</Color>
-        <PlayerType>PLAYER_1</PlayerType>
-    </PlayerProperty>
-    <PlayerProperty>
-        <PlayerName>Juro</PlayerName>
-        <Color>0x999999ff</Color>
-        <PlayerType>PLAYER_2</PlayerType>
-    </PlayerProperty>
-    <PlayerProperty>
-        <PlayerName>AAA</PlayerName>
+        <PlayerName>eee</PlayerName>
         <Color>0xff00ffff</Color>
-        <PlayerType>PLAYER_1</PlayerType>
-    </PlayerProperty>
-    <PlayerProperty>
-        <PlayerName>AAA</PlayerName>
-        <Color>0x800080ff</Color>
         <PlayerType>PLAYER_2</PlayerType>
     </PlayerProperty>
     <PlayerProperty>
-        <PlayerName>BBB</PlayerName>
-        <Color>0x0000ffff</Color>
+        <PlayerName>aaa</PlayerName>
+        <Color>0x000080ff</Color>
         <PlayerType>PLAYER_1</PlayerType>
     </PlayerProperty>
     <PlayerProperty>
-        <PlayerName>aa</PlayerName>
-        <Color>0x0000ffff</Color>
+        <PlayerName>www</PlayerName>
+        <Color>0x000080ff</Color>
+        <PlayerType>PLAYER_2</PlayerType>
+    </PlayerProperty>
+    <PlayerProperty>
+        <PlayerName>rrr</PlayerName>
+        <Color>0x336666ff</Color>
         <PlayerType>PLAYER_1</PlayerType>
     </PlayerProperty>
     <PlayerProperty>
-        <PlayerName>bb</PlayerName>
-        <Color>0xff0000ff</Color>
+        <PlayerName>qqq</PlayerName>
+        <Color>0x000080ff</Color>
         <PlayerType>PLAYER_2</PlayerType>
     </PlayerProperty>
     <PlayerProperty>
-        <PlayerName>aa</PlayerName>
-        <Color>0x00ffffff</Color>
-        <PlayerType>PLAYER_2</PlayerType>
-    </PlayerProperty>
-    <PlayerProperty>
-        <PlayerName>bb</PlayerName>
-        <Color>0x0000ffff</Color>
+        <PlayerName>ttt</PlayerName>
+        <Color>0x800000ff</Color>
         <PlayerType>PLAYER_1</PlayerType>
     </PlayerProperty>
 </PlayerProperties>
