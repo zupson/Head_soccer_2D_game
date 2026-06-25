@@ -66,7 +66,7 @@ public class DynamicPopUpUtils {
         playerProperty.setPlayerName(playerName.getText());
         playerProperty.setColor(color.getValue());
         playerProperty.setPlayerType(playerPlayer);
-        XMLUtils.saveNewPlayerProp(playerProperty);
+        XMLUtils.saveNewPlayerPropAsync(playerProperty);
     }
 
     private static void sendReadyCommand() {

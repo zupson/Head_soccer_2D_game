@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @UtilityClass
@@ -36,22 +37,25 @@ public class XMLUtils {
     private static final String PLAYER_PROPS = "PlayerProperties";
     private static final String FILENAME = "xml/PlayerProperties.xml";
 
-    @Synchronized
-    public  static void saveNewPlayerProp(PlayerProperty playerProperty) {
-        List<PlayerProperty> playerPropertyList;
-        try {
-            playerPropertyList = loadPlayerProps();
-            Document document = createDocument(PLAYER_PROPS);
+    public static CompletableFuture<Void> saveNewPlayerPropAsync(PlayerProperty playerProperty) {
+        return CompletableFuture.runAsync(() -> {
+            synchronized (XMLUtils.class) {
+                try {
+                    List<PlayerProperty> playerPropertyList = loadPlayerPropsAsync().join();
+                    Document document = createDocument(PLAYER_PROPS);
 
-            playerPropertyList.add(playerProperty);
-            for (PlayerProperty nextPlayerProperty : playerPropertyList) {
-                appendPlayerProperty(nextPlayerProperty, document);
+                    playerPropertyList.add(playerProperty);
+                    for (PlayerProperty nextPlayerProperty : playerPropertyList) {
+                        appendPlayerProperty(nextPlayerProperty, document);
+                    }
+
+                    saveDocument(document, FILENAME);
+                } catch (TransformerException | ParserConfigurationException e) {
+                    log.error("XML save error: {}", e.getMessage());
+                }
             }
+        });
 
-            saveDocument(document, FILENAME);
-        } catch (ParserConfigurationException | IOException | SAXException | TransformerException e) {
-            log.error("XML save error: {}", e.getMessage());
-        }
     }
 
     private static void saveDocument(Document document, String filename) throws TransformerException {
@@ -92,10 +96,19 @@ public class XMLUtils {
         return dom.createDocument(null, element, docType);
     }
 
-    @Synchronized
-    public static List<PlayerProperty> loadPlayerProps() throws ParserConfigurationException,
-            IOException, SAXException {
-        return parse(FILENAME);
+    public static CompletableFuture<List<PlayerProperty>> loadPlayerPropsAsync() {
+
+        return CompletableFuture.supplyAsync(() -> {
+            synchronized (XMLUtils.class) {
+                try {
+                    return parse(FILENAME);
+                } catch (ParserConfigurationException | SAXException | IOException e) {
+                    log.error("Failed to load player props: {}", e.getMessage());
+                    return new ArrayList<>();
+                }
+            }
+        });
+
     }
 
     private static List<PlayerProperty> parse(String path) throws ParserConfigurationException,

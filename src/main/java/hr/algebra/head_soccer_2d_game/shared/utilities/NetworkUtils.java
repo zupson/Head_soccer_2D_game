@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 @UtilityClass
 public class NetworkUtils {
     public static final ExecutorService threadPool = Executors.newFixedThreadPool(3);
+
     public static void sendSnapshot(Serializable gameDataSnapshot, int port) {
         sendObject(gameDataSnapshot, port);
     }

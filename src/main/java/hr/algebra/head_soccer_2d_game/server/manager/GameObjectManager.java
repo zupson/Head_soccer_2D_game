@@ -1,10 +1,14 @@
 package hr.algebra.head_soccer_2d_game.server.manager;
 
-import hr.algebra.head_soccer_2d_game.server.model.*;
+import hr.algebra.head_soccer_2d_game.server.model.Player;
 import hr.algebra.head_soccer_2d_game.shared.annotations.BusinessLogic;
 import hr.algebra.head_soccer_2d_game.shared.constant.DimenConstants;
 import hr.algebra.head_soccer_2d_game.shared.constant.PosConstants;
 import hr.algebra.head_soccer_2d_game.shared.enums.Side;
+import hr.algebra.head_soccer_2d_game.server.model.Boundary;
+import hr.algebra.head_soccer_2d_game.server.model.Goal;
+import hr.algebra.head_soccer_2d_game.server.model.Ball;
+import hr.algebra.head_soccer_2d_game.server.model.GameObject;
 import lombok.Getter;
 import org.dyn4j.dynamics.Body;
 

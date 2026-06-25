@@ -9,6 +9,7 @@ import hr.algebra.head_soccer_2d_game.server.model.GameDataSnapshot;
 import hr.algebra.head_soccer_2d_game.server.rmi.ChatRemoteService;
 import hr.algebra.head_soccer_2d_game.shared.constant.WindowSizeConstants;
 import hr.algebra.head_soccer_2d_game.shared.enums.GameState;
+import hr.algebra.head_soccer_2d_game.shared.enums.PlayerType;
 import hr.algebra.head_soccer_2d_game.shared.event.GameDataListener;
 import hr.algebra.head_soccer_2d_game.shared.utilities.*;
 import javafx.application.Platform;
@@ -20,8 +21,6 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -32,7 +31,10 @@ public class PlaygroundController implements GameDataListener {
     private final AtomicBoolean gameOverShown = new AtomicBoolean(false);
     private GameRender gameRender;
     private boolean chatFocused = false;
-    
+    private String playerOneName = "Player 1";
+    private String playerTwoName = "Player 2";
+    private boolean isRerun = false;
+
     @FXML
     private TextField tfChat;
     @FXML
@@ -63,35 +65,15 @@ public class PlaygroundController implements GameDataListener {
         checkForSavedGame();
         setupButtonsVisibility();
         setupChatFocusHandlers();
+        loadPlayerNames();
 
         Platform.runLater(() -> {
             Stage stage = (Stage) lbTimer.getScene().getWindow();
-            stage.setOnCloseRequest(event -> AlertUtils.showQuitAlert(this::saveGameToFile));
+            stage.setOnCloseRequest(event -> AlertUtils.showQuitAlert(() -> {
+                saveGameToFile();
+                NetworkUtils.sendGameCommand(GameState.QUIT);
+            }));
         });
-    }
-
-    private void setupButtonsVisibility() {
-        btnPause.setVisible(false);
-        btnResume.setVisible(true);
-    }
-
-    private void setupChatFocusHandlers() {
-        tfChat.setOnMouseClicked(event -> chatFocused = true);
-        tfChat.setOnMouseExited(event -> chatFocused = false);
-    }
-
-    private void saveGameToFile() {
-        try {
-            FileUtils.saveGameToFile(lastSnapshot);
-        } catch (IOException e) {
-            AlertUtils.showSaveErrorAlert(e);
-        }
-    }
-
-    private void initChat() {
-        chatRemoteService = ChatUtils.initializeChatRemoteService().orElse(null);
-        if (chatRemoteService != null)
-            ChatUtils.getChatRefreshTimeline(chatRemoteService, taChat).play();
     }
 
     private void setupInputHandlers() {
@@ -99,59 +81,23 @@ public class PlaygroundController implements GameDataListener {
         gameCanvas.setOnKeyReleased(playerInputHandler::handleKeyRelease);
     }
 
-    @FXML
-    public void onPauseClicked(ActionEvent event) {
-        NetworkUtils.sendGameCommand(GameState.PAUSE);
+    private void initRenderers() {
+        GraphicsContext graphicContext = gameCanvas.getGraphicsContext2D();
+        gameCanvas.setWidth(WindowSizeConstants.SCENE_WIDTH.getValue());
+        gameCanvas.setHeight(WindowSizeConstants.SCENE_HEIGHT.getValue());
+        gameCanvas.setFocusTraversable(true);
+        Platform.runLater(() -> gameCanvas.requestFocus());
+
+        var fieldRenderer = new GameFieldRenderer(graphicContext);
+        var playerRenderer = new PlayerRenderer(graphicContext);
+        gameRender = new GameRender(graphicContext, playerRenderer, fieldRenderer,
+                lbLeftPlayer, lbRightPlayer, lbLeftPlayerScore, lbRightPlayerScore, lbTimer);
     }
 
-    @FXML
-    public void onResumeClicked(ActionEvent event) {
-        NetworkUtils.sendGameCommand(GameState.RUNNING);
-        gameCanvas.requestFocus();
-    }
-
-    @Override
-    public void onGameDataChanged(GameDataSnapshot gameDataSnapshot) {
-        lastSnapshot = gameDataSnapshot;
-        if (gameDataSnapshot.getGameState() == GameState.QUIT) {
-            Platform.runLater(Platform::exit);
-            return;
-        }
-        if (gameDataSnapshot.getGameState() == GameState.GAME_OVER) {
-            if (gameOverShown.compareAndSet(false, true)) {
-                Platform.runLater(() -> {
-                    Optional<ButtonType> buttonType = AlertUtils.showGameOverAlert(lastSnapshot);
-                    buttonType.ifPresent(this::handleGameOverChoice);
-                });
-            }
-            return;
-        }
-        if (gameDataSnapshot.getGameState() == GameState.RUNNING) {
-            gameOverShown.set(false);
-
-            if (!chatFocused)
-                Platform.runLater(() -> gameCanvas.requestFocus());
-        }
-        restoreGameData(gameDataSnapshot);
-        updatePauseUI(gameDataSnapshot.getGameState());
-    }
-
-    private void handleGameOverChoice(ButtonType buttonType) {
-        if (buttonType.getText().equals("Rerun"))
-            NetworkUtils.sendGameCommand(GameState.RERUN);
-        else {
-            NetworkUtils.sendGameCommand(GameState.QUIT);
-            Platform.runLater(Platform::exit);
-        }
-    }
-
-    private void updatePauseUI(GameState gameState) {
-        Platform.runLater(() -> {
-                    boolean isPaused = gameState == GameState.PAUSE;
-                    btnPause.setVisible(!isPaused);
-                    btnResume.setVisible(isPaused);
-                }
-        );
+    private void initChat() {
+        chatRemoteService = ChatUtils.initializeChatRemoteService().orElse(null);
+        if (chatRemoteService != null)
+            ChatUtils.getChatRefreshTimeline(chatRemoteService, taChat).play();
     }
 
     private void checkForSavedGame() {
@@ -173,21 +119,114 @@ public class PlaygroundController implements GameDataListener {
         });
     }
 
-    private void restoreGameData(GameDataSnapshot gameDataSnapshot) {
-        Platform.runLater(() -> gameRender.render(gameDataSnapshot));
+    private void setupButtonsVisibility() {
+        btnPause.setVisible(false);
+        btnResume.setVisible(true);
     }
 
-    private void initRenderers() {
-        GraphicsContext graphicContext = gameCanvas.getGraphicsContext2D();
-        gameCanvas.setWidth(WindowSizeConstants.SCENE_WIDTH.getValue());
-        gameCanvas.setHeight(WindowSizeConstants.SCENE_HEIGHT.getValue());
-        gameCanvas.setFocusTraversable(true);
-        Platform.runLater(() -> gameCanvas.requestFocus());
+    private void setupChatFocusHandlers() {
+        tfChat.setOnMouseClicked(event -> chatFocused = true);
+        tfChat.setOnMouseExited(event -> chatFocused = false);
+    }
 
-        var fieldRenderer = new GameFieldRenderer(graphicContext);
-        var playerRenderer = new PlayerRenderer(graphicContext);
-        gameRender = new GameRender(graphicContext, playerRenderer, fieldRenderer,
-                lbLeftPlayer, lbRightPlayer, lbLeftPlayerScore, lbRightPlayerScore, lbTimer);
+    private void saveGameToFile() {
+
+        FileUtils.saveGameToFileAsync(lastSnapshot)
+                .exceptionally(e -> {
+                    log.error("Failed to save game: {}", e.getMessage());
+                    return null;
+                });
+
+    }
+
+    private void loadPlayerNames() {
+        XMLUtils.loadPlayerPropsAsync()
+                .thenAccept(props ->
+                        props.forEach(prop -> {
+                            if (prop.getPlayerType() == PlayerType.PLAYER_1)
+                                playerOneName = prop.getPlayerName();
+                            else if (prop.getPlayerType() == PlayerType.PLAYER_2)
+                                playerTwoName = prop.getPlayerName();
+                        })).exceptionally(e -> {
+                    log.warn("Could not load player names, using defaults: {}", e.getMessage());
+                    return null;
+                });
+    }
+
+    @FXML
+    public void onPauseClicked(ActionEvent event) {
+        NetworkUtils.sendGameCommand(GameState.PAUSE);
+    }
+
+    @FXML
+    public void onResumeClicked(ActionEvent event) {
+        NetworkUtils.sendGameCommand(GameState.RUNNING);
+        gameCanvas.requestFocus();
+    }
+
+    @Override
+    public void onGameDataChanged(GameDataSnapshot gameDataSnapshot) {
+        lastSnapshot = gameDataSnapshot;
+        if (gameDataSnapshot.getGameState() == GameState.QUIT) {
+            Platform.runLater(() -> {
+                AlertUtils.showOpponentLeftAlert();
+                Platform.exit();
+            });
+            return;
+        }
+        if (gameDataSnapshot.getGameState() == GameState.GAME_OVER) {
+            if (gameOverShown.compareAndSet(false, true)) {
+                XMLUtils.loadPlayerPropsAsync()
+                        .thenAccept(props -> props.forEach(prop -> {
+                            if (prop.getPlayerType() == PlayerType.PLAYER_1)
+                                playerOneName = prop.getPlayerName();
+                            else if (prop.getPlayerType() == PlayerType.PLAYER_2)
+                                playerTwoName = prop.getPlayerName();
+                        }))
+                        .thenRun(() -> Platform.runLater(() -> {
+                            AlertUtils.showGameOverAlert(lastSnapshot, playerOneName, playerTwoName, this::handleGameOverChoice);
+                        }));
+            }
+            return;
+        }
+        if (gameDataSnapshot.getGameState() == GameState.RUNNING) {
+            gameOverShown.set(false);
+
+            if (isRerun) {
+                isRerun = false;
+                loadPlayerNames();
+            }
+
+            if (!chatFocused)
+                Platform.runLater(() -> gameCanvas.requestFocus());
+        }
+        restoreGameData(gameDataSnapshot);
+        updatePauseUI(gameDataSnapshot.getGameState());
+    }
+
+    private void handleGameOverChoice(ButtonType buttonType) {
+        if (buttonType.getText().equals("Rerun")) {
+            isRerun = true;
+            NetworkUtils.sendGameCommand(GameState.RERUN);
+        } else {
+            XMLUtils.deletePlayerProps();
+            FileUtils.deleteSavedGameData();
+            NetworkUtils.sendGameCommand(GameState.QUIT);
+            Platform.runLater(Platform::exit);
+        }
+    }
+
+    private void updatePauseUI(GameState gameState) {
+        Platform.runLater(() -> {
+                    boolean isPaused = gameState == GameState.PAUSE;
+                    btnPause.setVisible(!isPaused);
+                    btnResume.setVisible(isPaused);
+                }
+        );
+    }
+
+    private void restoreGameData(GameDataSnapshot gameDataSnapshot) {
+        Platform.runLater(() -> gameRender.render(gameDataSnapshot));
     }
 
     public void sendChatMessage() {

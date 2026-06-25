@@ -6,46 +6,43 @@
 <li><b>init</b>
  | Returns: void
  | Params: []</li>
-<li><b>loadGame</b>
+<li><b>resetGame</b>
  | Returns: void
  | Params: []</li>
 <li><b>onGameOver</b>
  | Returns: void
  | Params: []</li>
-<li><b>resetGame</b>
+<li><b>loadGame</b>
  | Returns: void
  | Params: []</li>
 <li><b>handleQuit</b>
  | Returns: void
  | Params: []</li>
-<li><b>initGameLoop</b>
+<li><b>lambda$onGameDataChanged$0</b>
  | Returns: void
- | Params: []</li>
+ | Params: [GameDataSnapshot]</li>
+<li><b>loadManagersFromSingleton</b>
+ | Returns: void
+ | Params: [GameSingleton]</li>
 <li><b>initNetwork</b>
  | Returns: void
  | Params: []</li>
-<li><b>onPlayerRerun</b>
+<li><b>initGameLoop</b>
  | Returns: void
  | Params: []</li>
 <li><b>onGameCommand</b>
  | Returns: void
  | Params: [GameCommand]</li>
-<li><b>applyPlayerInputs</b>
- | Returns: void
- | Params: []</li>
-<li><b>onGoalScored</b>
- | Returns: void
- | Params: [Side]</li>
-<li><b>lambda$loadGame$1</b>
- | Returns: void
- | Params: [GameDataSnapshot]</li>
+<li><b>lambda$loadGame$4</b>
+ | Returns: Void
+ | Params: [Throwable]</li>
 <li><b>resetScores</b>
  | Returns: void
  | Params: []</li>
-<li><b>lambda$loadGame$2</b>
+<li><b>onPlayerInput</b>
  | Returns: void
- | Params: []</li>
-<li><b>resetPositions</b>
+ | Params: [PlayerInput]</li>
+<li><b>applyPlayerInputs</b>
  | Returns: void
  | Params: []</li>
 <li><b>onPlayerReady</b>
@@ -54,48 +51,57 @@
 <li><b>onGameDataChanged</b>
  | Returns: void
  | Params: [GameDataSnapshot]</li>
-<li><b>onPlayerInput</b>
+<li><b>lambda$loadGame$2</b>
  | Returns: void
- | Params: [PlayerInput]</li>
-<li><b>loadManagersFromSingleton</b>
+ | Params: []</li>
+<li><b>lambda$loadGame$3</b>
  | Returns: void
- | Params: [GameSingleton]</li>
-<li><b>lambda$onGameDataChanged$0</b>
+ | Params: [Optional]</li>
+<li><b>resetPositions</b>
+ | Returns: void
+ | Params: []</li>
+<li><b>lambda$loadGame$1</b>
  | Returns: void
  | Params: [GameDataSnapshot]</li>
+<li><b>onPlayerRerun</b>
+ | Returns: void
+ | Params: []</li>
+<li><b>onGoalScored</b>
+ | Returns: void
+ | Params: [Side]</li>
 </ul><hr>
 <h2>GameLoop</h2>
 <p><b>Description:</b> Main game loop execution</p>
 <h3>Methods:</h3><ul>
-<li><b>resetTimer</b>
- | Returns: void
- | Params: []</li>
-<li><b>timerTick</b>
- | Returns: void
- | Params: []</li>
 <li><b>updateGame</b>
  | Returns: void
  | Params: [double]</li>
+<li><b>timerTick</b>
+ | Returns: void
+ | Params: []</li>
+<li><b>resetTimer</b>
+ | Returns: void
+ | Params: []</li>
 <li><b>startGameLoop</b>
+ | Returns: void
+ | Params: []</li>
+<li><b>handleGameOver</b>
  | Returns: void
  | Params: []</li>
 <li><b>calculateDeltaTime</b>
  | Returns: double
  | Params: []</li>
+<li><b>handleGoalIfScored</b>
+ | Returns: void
+ | Params: []</li>
+<li><b>setRemainingTime</b>
+ | Returns: void
+ | Params: [double]</li>
 <li><b>resetAfterGoal</b>
  | Returns: void
  | Params: []</li>
 <li><b>getRemainingTime</b>
  | Returns: double
- | Params: []</li>
-<li><b>setRemainingTime</b>
- | Returns: void
- | Params: [double]</li>
-<li><b>handleGoalIfScored</b>
- | Returns: void
- | Params: []</li>
-<li><b>handleGameOver</b>
- | Returns: void
  | Params: []</li>
 </ul><hr>
 <h2>GameSingleton</h2>
@@ -104,103 +110,64 @@
 <li><b>init</b>
  | Returns: void
  | Params: [GoalListener]</li>
-<li><b>getCurrentInstance</b>
- | Returns: GameSingleton
+<li><b>getGamePhysicManager</b>
+ | Returns: GamePhysicManager
  | Params: []</li>
 <li><b>getGameObjectManager</b>
  | Returns: GameObjectManager
  | Params: []</li>
-<li><b>getGamePhysicManager</b>
- | Returns: GamePhysicManager
- | Params: []</li>
 <li><b>getGameStateManager</b>
  | Returns: GameStateManager
+ | Params: []</li>
+<li><b>getCurrentInstance</b>
+ | Returns: GameSingleton
  | Params: []</li>
 </ul><hr>
 <h2>GameManagersFactory</h2>
 <p><b>Description:</b> Factory for creating game manager instances</p>
 <h3>Methods:</h3><ul>
-<li><b>createStateManager</b>
- | Returns: GameStateManager
- | Params: []</li>
 <li><b>createGameObjectManager</b>
  | Returns: GameObjectManager
  | Params: []</li>
 <li><b>createPhysicsManager</b>
  | Returns: GamePhysicManager
  | Params: [GameObjectManager, GoalListener, GameStateManager]</li>
+<li><b>createStateManager</b>
+ | Returns: GameStateManager
+ | Params: []</li>
 </ul><hr>
 <h2>GameObjectManager</h2>
 <p><b>Description:</b> Manages game objects lifecycle</p>
 <h3>Methods:</h3><ul>
-<li><b>getPlayers</b>
- | Returns: List
- | Params: []</li>
-<li><b>getFloor</b>
- | Returns: Boundary
- | Params: []</li>
-<li><b>getCeiling</b>
- | Returns: Boundary
- | Params: []</li>
-<li><b>resetBody</b>
- | Returns: void
- | Params: [Body, double, double]</li>
-<li><b>getBall</b>
- | Returns: Ball
- | Params: []</li>
-<li><b>createPlayersModel</b>
- | Returns: void
- | Params: []</li>
-<li><b>setStartPositions</b>
- | Returns: void
- | Params: []</li>
-<li><b>getLeftPlayer</b>
- | Returns: Player
- | Params: []</li>
-<li><b>getRightPlayer</b>
- | Returns: Player
- | Params: []</li>
-<li><b>getLeftGoal</b>
- | Returns: Goal
- | Params: []</li>
-<li><b>createBoundaries</b>
- | Returns: void
- | Params: []</li>
-<li><b>createBallModel</b>
- | Returns: void
- | Params: []</li>
-<li><b>getRightGoal</b>
- | Returns: Goal
- | Params: []</li>
-<li><b>setFixedPositions</b>
- | Returns: void
- | Params: []</li>
-<li><b>createGoalsModel</b>
+<li><b>setLeftWallBoundaryFixedPosition</b>
  | Returns: void
  | Params: []</li>
 <li><b>setRightWallBoundaryFixedPosition</b>
  | Returns: void
  | Params: []</li>
-<li><b>setLeftWallBoundaryFixedPosition</b>
+<li><b>resetBody</b>
  | Returns: void
- | Params: []</li>
-<li><b>getLeftBoundaryWall</b>
+ | Params: [Body, double, double]</li>
+<li><b>getCeiling</b>
  | Returns: Boundary
+ | Params: []</li>
+<li><b>getFloor</b>
+ | Returns: Boundary
+ | Params: []</li>
+<li><b>getPlayers</b>
+ | Returns: List
+ | Params: []</li>
+<li><b>getBall</b>
+ | Returns: Ball
  | Params: []</li>
 <li><b>getGameFiledObjects</b>
  | Returns: List
  | Params: []</li>
-<li><b>initGameObjectManager</b>
- | Returns: void
- | Params: []</li>
-<li><b>setCeilingFixedPosition</b>
- | Returns: void
+<li><b>getLeftBoundaryWall</b>
+ | Returns: Boundary
  | Params: []</li>
 <li><b>getRightBoundaryWall</b>
  | Returns: Boundary
- | Params: []</li>
-<li><b>setGoalsFixedPositions</b>
- | Returns: void
  | Params: []</li>
 <li><b>setFloorFixedPosition</b>
  | Returns: void
@@ -208,8 +175,47 @@
 <li><b>setBallStartPosition</b>
  | Returns: void
  | Params: []</li>
+<li><b>setCeilingFixedPosition</b>
+ | Returns: void
+ | Params: []</li>
+<li><b>initGameObjectManager</b>
+ | Returns: void
+ | Params: []</li>
 <li><b>setPlayersStartPositions</b>
  | Returns: void
+ | Params: []</li>
+<li><b>setGoalsFixedPositions</b>
+ | Returns: void
+ | Params: []</li>
+<li><b>getLeftGoal</b>
+ | Returns: Goal
+ | Params: []</li>
+<li><b>getRightGoal</b>
+ | Returns: Goal
+ | Params: []</li>
+<li><b>createBoundaries</b>
+ | Returns: void
+ | Params: []</li>
+<li><b>createPlayersModel</b>
+ | Returns: void
+ | Params: []</li>
+<li><b>createGoalsModel</b>
+ | Returns: void
+ | Params: []</li>
+<li><b>createBallModel</b>
+ | Returns: void
+ | Params: []</li>
+<li><b>setStartPositions</b>
+ | Returns: void
+ | Params: []</li>
+<li><b>setFixedPositions</b>
+ | Returns: void
+ | Params: []</li>
+<li><b>getRightPlayer</b>
+ | Returns: Player
+ | Params: []</li>
+<li><b>getLeftPlayer</b>
+ | Returns: Player
  | Params: []</li>
 </ul><hr>
 <h2>GamePhysicManager</h2>
@@ -224,43 +230,37 @@
 <li><b>end</b>
  | Returns: void
  | Params: [ContactCollisionData, Contact]</li>
-<li><b>postSolve</b>
- | Returns: void
- | Params: [ContactCollisionData, SolvedContact]</li>
-<li><b>addToWorld</b>
- | Returns: void
- | Params: [GameObjectManager]</li>
 <li><b>destroyed</b>
  | Returns: void
  | Params: [ContactCollisionData, Contact]</li>
 <li><b>collision</b>
  | Returns: void
  | Params: [ContactCollisionData]</li>
-<li><b>persist</b>
+<li><b>postSolve</b>
  | Returns: void
- | Params: [ContactCollisionData, Contact, Contact]</li>
-<li><b>checkGoal</b>
- | Returns: void
- | Params: [BodyFixture, BodyFixture]</li>
+ | Params: [ContactCollisionData, SolvedContact]</li>
 <li><b>preSolve</b>
  | Returns: void
  | Params: [ContactCollisionData, Contact]</li>
+<li><b>addToWorld</b>
+ | Returns: void
+ | Params: [GameObjectManager]</li>
+<li><b>checkGoal</b>
+ | Returns: void
+ | Params: [BodyFixture, BodyFixture]</li>
+<li><b>persist</b>
+ | Returns: void
+ | Params: [ContactCollisionData, Contact, Contact]</li>
+<li><b>setBoundaryWallsPhysics</b>
+ | Returns: void
+ | Params: [GameObjectManager]</li>
+<li><b>setBoundaryCeilingPhysics</b>
+ | Returns: void
+ | Params: [GameObjectManager]</li>
 <li><b>setGoalListener</b>
  | Returns: void
  | Params: [GoalListener]</li>
 <li><b>initPhysics</b>
- | Returns: void
- | Params: [GameObjectManager]</li>
-<li><b>setupPhysics</b>
- | Returns: void
- | Params: [GameObjectManager]</li>
-<li><b>setGoalsPhysic</b>
- | Returns: void
- | Params: [GameObjectManager]</li>
-<li><b>addWallsToWorld</b>
- | Returns: void
- | Params: [GameObjectManager]</li>
-<li><b>addGoalsToWorld</b>
  | Returns: void
  | Params: [GameObjectManager]</li>
 <li><b>addBallToWorld</b>
@@ -269,25 +269,31 @@
 <li><b>setPlayersPhysic</b>
  | Returns: void
  | Params: [GameObjectManager]</li>
-<li><b>addFloorToWorld</b>
+<li><b>addWallsToWorld</b>
  | Returns: void
  | Params: [GameObjectManager]</li>
-<li><b>addCeilingToWorld</b>
- | Returns: void
- | Params: [GameObjectManager]</li>
-<li><b>setBallPhysic</b>
+<li><b>setGoalsPhysic</b>
  | Returns: void
  | Params: [GameObjectManager]</li>
 <li><b>setFloorPhysic</b>
  | Returns: void
  | Params: [GameObjectManager]</li>
+<li><b>addGoalsToWorld</b>
+ | Returns: void
+ | Params: [GameObjectManager]</li>
+<li><b>addFloorToWorld</b>
+ | Returns: void
+ | Params: [GameObjectManager]</li>
+<li><b>setBallPhysic</b>
+ | Returns: void
+ | Params: [GameObjectManager]</li>
+<li><b>addCeilingToWorld</b>
+ | Returns: void
+ | Params: [GameObjectManager]</li>
 <li><b>addPlayersToWorld</b>
  | Returns: void
  | Params: [GameObjectManager]</li>
-<li><b>setBoundaryCeilingPhysics</b>
- | Returns: void
- | Params: [GameObjectManager]</li>
-<li><b>setBoundaryWallsPhysics</b>
+<li><b>setupPhysics</b>
  | Returns: void
  | Params: [GameObjectManager]</li>
 </ul><hr>
@@ -300,12 +306,12 @@
 <li><b>setScoredGoalFlag</b>
  | Returns: void
  | Params: [boolean]</li>
-<li><b>isScoredGoalFlag</b>
- | Returns: boolean
- | Params: []</li>
 <li><b>setCurrentState</b>
  | Returns: void
  | Params: [GameState]</li>
+<li><b>isScoredGoalFlag</b>
+ | Returns: boolean
+ | Params: []</li>
 <li><b>getCurrentState</b>
  | Returns: GameState
  | Params: []</li>

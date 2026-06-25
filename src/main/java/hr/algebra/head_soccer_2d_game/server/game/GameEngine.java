@@ -29,6 +29,7 @@ public class GameEngine implements GoalListener, GameDataListener, GameOverListe
     private GamePhysicManager gamePhysicManager;
     private GameStateManager gameStateManager;
     private GameLoop gameLoop;
+
     private final PlayerInputHandler playerOneInputHandler = new PlayerInputHandler();
     private final PlayerInputHandler playerTwoInputHandler = new PlayerInputHandler();
     private int readyPlayerCounter = 0;
@@ -115,18 +116,23 @@ public class GameEngine implements GoalListener, GameDataListener, GameOverListe
     private void loadGame() {
         loadGameCounter++;
         if (loadGameCounter == 1) {
-            FileUtils.loadGameFromFile().ifPresentOrElse(
-                    snapshot -> {
-                        gameLoop.setRemainingTime(snapshot.getRemainingTime());
-                        gameObjectManager.getLeftGoal().setScore(snapshot.getPlayerOneScore());
-                        gameObjectManager.getRightGoal().setScore(snapshot.getPlayerTwoScore());
-                        gameStateManager.setCurrentState(GameState.PAUSE);
-                    },
-                    () -> {
-                        log.warn("No saved game found, starting new game.");
-                        resetGame();
-                    }
-            );
+            FileUtils.loadGameFromFileAsync()
+                    .thenAccept(snapshot -> snapshot.ifPresentOrElse(
+                            s -> {
+                                gameLoop.setRemainingTime(s.getRemainingTime());
+                                gameObjectManager.getLeftGoal().setScore(s.getPlayerOneScore());
+                                gameObjectManager.getRightGoal().setScore(s.getPlayerTwoScore());
+                                gameStateManager.setCurrentState(GameState.PAUSE);
+                            },
+                            () -> {
+                                log.warn("No saved game found, starting new game.");
+                                resetGame();
+                            }
+                    ))
+                    .exceptionally(e -> {
+                        log.error("Failed to load game: {}", e.getMessage());
+                        return null;
+                    });
         }
     }
 
@@ -140,11 +146,16 @@ public class GameEngine implements GoalListener, GameDataListener, GameOverListe
     }
 
     private void handleQuit() {
-        GameCommand quitCommand = new GameCommand();
-        quitCommand.setGameState(GameState.QUIT);
-        NetworkUtils.sendSnapshot(quitCommand,
+        GameDataSnapshot quitSnapshot = new GameDataSnapshot(
+                gameObjectManager.getLeftGoal().getScore(),
+                gameObjectManager.getRightGoal().getScore(),
+                0, 0, 0, 0, 0, 0,  // koordinate nisu bitne
+                GameState.QUIT,
+                0
+        );
+        NetworkUtils.sendSnapshot(quitSnapshot,
                 ConfigReader.getIntegerValueForKey(ConfigKey.PLAYER_ONE_SERVER_PORT));
-        NetworkUtils.sendSnapshot(quitCommand,
+        NetworkUtils.sendSnapshot(quitSnapshot,
                 ConfigReader.getIntegerValueForKey(ConfigKey.PLAYER_TWO_SERVER_PORT));
     }
 

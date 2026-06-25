@@ -9,12 +9,10 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 @Slf4j
 @RequiredArgsConstructor
 public class PlayerRenderer implements Drawable {
@@ -49,12 +47,12 @@ public class PlayerRenderer implements Drawable {
     }
 
     private List<PlayerProperty> loadPlayerPropertiesFromXML() {
-        try {
-            return XMLUtils.loadPlayerProps();
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            log.error("Failed to load player properties from XML: {}", e.getMessage());
-            return new ArrayList<>();
-        }
+        return XMLUtils.loadPlayerPropsAsync()
+                .exceptionally(e -> {
+                    log.error("Failed to load player properties from XML: {}", e.getMessage());
+                    return new ArrayList<>();
+                })
+                .join();
     }
 
     public void showPlayerName(Label lbLeftPlayer, Label lbRightPlayer) {

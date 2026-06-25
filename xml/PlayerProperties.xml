@@ -2,33 +2,13 @@
 <!DOCTYPE PlayerProperties SYSTEM "dtd/PlayerProperties.dtd">
 <PlayerProperties>
     <PlayerProperty>
-        <PlayerName>eee</PlayerName>
+        <PlayerName>luka</PlayerName>
+        <Color>0x0000ffff</Color>
+        <PlayerType>PLAYER_1</PlayerType>
+    </PlayerProperty>
+    <PlayerProperty>
+        <PlayerName>zzzz</PlayerName>
         <Color>0xff00ffff</Color>
         <PlayerType>PLAYER_2</PlayerType>
-    </PlayerProperty>
-    <PlayerProperty>
-        <PlayerName>aaa</PlayerName>
-        <Color>0x000080ff</Color>
-        <PlayerType>PLAYER_1</PlayerType>
-    </PlayerProperty>
-    <PlayerProperty>
-        <PlayerName>www</PlayerName>
-        <Color>0x000080ff</Color>
-        <PlayerType>PLAYER_2</PlayerType>
-    </PlayerProperty>
-    <PlayerProperty>
-        <PlayerName>rrr</PlayerName>
-        <Color>0x336666ff</Color>
-        <PlayerType>PLAYER_1</PlayerType>
-    </PlayerProperty>
-    <PlayerProperty>
-        <PlayerName>qqq</PlayerName>
-        <Color>0x000080ff</Color>
-        <PlayerType>PLAYER_2</PlayerType>
-    </PlayerProperty>
-    <PlayerProperty>
-        <PlayerName>ttt</PlayerName>
-        <Color>0x800000ff</Color>
-        <PlayerType>PLAYER_1</PlayerType>
     </PlayerProperty>
 </PlayerProperties>

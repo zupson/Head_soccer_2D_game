@@ -6,7 +6,6 @@ import javafx.scene.control.ButtonType;
 import lombok.experimental.UtilityClass;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 
@@ -35,24 +34,30 @@ public class AlertUtils {
         );
     }
 
-    public static Optional<ButtonType> showGameOverAlert(GameDataSnapshot snapshot) {
+    public static void showGameOverAlert(GameDataSnapshot snapshot, String playerOneName, String playerTwoName, Consumer<ButtonType> onChoice) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Game over");
-        alert.setHeaderText(determineWinner(snapshot));
-        alert.setContentText("Score: " + snapshot.getPlayerOneScore() + " - " + snapshot.getPlayerTwoScore()
-                + "\nDo you want to play again?");
+        alert.setHeaderText(determineWinner(snapshot, playerOneName, playerTwoName));
+        alert.setContentText("Do you want to play again?");
 
         var btnRerun = new ButtonType("Rerun");
         var btnClose = new ButtonType("Close");
         alert.getButtonTypes().setAll(btnRerun, btnClose);
 
-        return alert.showAndWait();
+        alert.setOnHidden(e -> {
+                    if (alert.getResult() != null) {
+                        onChoice.accept(alert.getResult());
+                    }
+                }
+        );
+        alert.show();
     }
-    private static String determineWinner(GameDataSnapshot gameDataSnapshot) {
+
+    private static String determineWinner(GameDataSnapshot gameDataSnapshot, String playerOneName, String playerTwoName) {
         int player1 = gameDataSnapshot.getPlayerOneScore();
         int player2 = gameDataSnapshot.getPlayerTwoScore();
-        if (player1 > player2) return "Player 1 wins!";
-        if (player2 > player1) return "Player 2 wins!";
+        if (player1 < player2) return playerOneName + " wins!";
+        if (player2 < player1) return playerTwoName + " wins!";
         return "It's a draw!";
     }
 
@@ -61,8 +66,15 @@ public class AlertUtils {
         quitAlert.setTitle("Quit");
         quitAlert.setContentText("Are you sure?");
 
-       quitAlert.showAndWait()
-               .filter(btn-> btn==ButtonType.OK)
-               .ifPresent(btn-> onConfirm.run());
+        quitAlert.showAndWait()
+                .filter(btn -> btn == ButtonType.OK)
+                .ifPresent(btn -> onConfirm.run());
+    }
+
+    public static void showOpponentLeftAlert() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Game over");
+        alert.setHeaderText("Opponent has left the game.");
+        alert.showAndWait();
     }
 }

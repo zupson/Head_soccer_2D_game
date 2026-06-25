@@ -11,7 +11,7 @@ module hr.algebra.head_soccer_2d_game {
     requires static lombok;
     requires org.slf4j;
 
-    opens hr.algebra.head_soccer_2d_game to javafx.fxml;
+//    opens hr.algebra.head_soccer_2d_game to javafx.fxml;
     exports hr.algebra.head_soccer_2d_game.client.main;
     opens hr.algebra.head_soccer_2d_game.client.main to javafx.fxml;
     exports hr.algebra.head_soccer_2d_game.client.controller.ui;
@@ -20,6 +20,7 @@ module hr.algebra.head_soccer_2d_game {
     opens hr.algebra.head_soccer_2d_game.client.controller.input to javafx.fxml;
     exports hr.algebra.head_soccer_2d_game.shared.event;
     opens hr.algebra.head_soccer_2d_game.shared.event to javafx.fxml;
+
 
 
     //eksplicitno definiranje da bi RMI radio s refleksijom i
